@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plutur — Real Estate Investment Intelligence</title>
+<meta name="description" content="ML-powered deal scoring, live market data for 30+ U.S. markets, and an AI investment advisor. Built for serious real estate investors.">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#111210;--surface:#181815;--surface2:#1e1e1a;--surface3:#242420;--surface4:#2a2a25;
+  --line:rgba(255,255,255,.06);--line2:rgba(255,255,255,.1);--line3:rgba(212,185,120,.2);
+  --gold:#c9a84c;--gold2:#e2c882;--gold-dim:rgba(201,168,76,.12);
+  --green:#4a9e72;--green2:#6abf8e;--red:#9e4a4a;--red2:#bf6a6a;--amber:#b89040;
+  --t1:#f5f0e8;--t2:#a09888;--t3:#605850;--t4:#302e28;
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --sans:'DM Sans',system-ui,sans-serif;
+  --mono:'DM Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--t1);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+
+/* GRAIN */
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:1}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;height:64px;display:flex;align-items:center;padding:0 48px;gap:32px;transition:all .3s}
+.nav.scrolled{background:rgba(17,18,16,.92);border-bottom:1px solid var(--line);backdrop-filter:blur(20px)}
+.nav-logo{font-family:var(--serif);font-size:22px;font-style:italic;color:var(--t1);letter-spacing:.5px;text-decoration:none;display:flex;align-items:center;gap:10px}
+.nav-logo-mark{width:28px;height:28px;border:1px solid var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-style:italic;color:var(--gold)}
+.nav-links{display:flex;gap:28px;margin-left:auto}
+.nav-link{font-family:var(--mono);font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--t3);text-decoration:none;transition:color .15s}
+.nav-link:hover{color:var(--t1)}
+.nav-ctas{display:flex;gap:10px;margin-left:12px}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:10px 22px;border:none;border-radius:4px;font-family:var(--sans);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;white-space:nowrap;text-decoration:none}
+.btn-ghost{background:transparent;color:var(--t2);border:1px solid var(--line2)}
+.btn-ghost:hover{border-color:var(--line3);color:var(--t1)}
+.btn-gold{background:var(--gold);color:#0e0c08}
+.btn-gold:hover{background:var(--gold2);transform:translateY(-1px);box-shadow:0 4px 20px rgba(201,168,76,.25)}
+.btn-dark{background:var(--surface2);color:var(--t1);border:1px solid var(--line2)}
+.btn-dark:hover{border-color:var(--line3)}
+.btn-lg{padding:14px 32px;font-size:14px}
+.btn-full{width:100%;margin-top:6px}
+.btn-sm{padding:7px 16px;font-size:12px}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:120px 48px 80px;text-align:center;position:relative;overflow:hidden}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(201,168,76,.04) 0%,transparent 70%);pointer-events:none}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.015) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.015) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black,transparent)}
+.hero-tag{font-family:var(--mono);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:20px;display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line3);padding:6px 16px;border-radius:20px;background:var(--gold-dim)}
+.hero-tag-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);animation:blink 2s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.hero-h1{font-family:var(--serif);font-size:clamp(52px,7vw,88px);font-weight:300;line-height:1.05;letter-spacing:-1.5px;color:var(--t1);margin-bottom:24px;max-width:900px}
+.hero-h1 em{font-style:italic;color:var(--gold2)}
+.hero-sub{font-family:var(--mono);font-size:13px;color:var(--t2);line-height:1.8;max-width:520px;margin-bottom:40px;letter-spacing:.3px}
+.hero-ctas{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:60px}
+.hero-social{font-family:var(--mono);font-size:9px;color:var(--t3);letter-spacing:.5px;display:flex;align-items:center;gap:8px}
+.hero-avatars{display:flex}
+.hero-avatars span{width:24px;height:24px;border-radius:50%;border:2px solid var(--bg);background:var(--surface3);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:10px;font-style:italic;color:var(--t2);margin-left:-6px}
+.hero-avatars span:first-child{margin-left:0}
+
+/* LIVE TICKER */
+.ticker-bar{background:var(--surface);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:12px 0;overflow:hidden;position:relative}
+.ticker-bar::before,.ticker-bar::after{content:'';position:absolute;top:0;bottom:0;width:80px;z-index:2;pointer-events:none}
+.ticker-bar::before{left:0;background:linear-gradient(90deg,var(--surface),transparent)}
+.ticker-bar::after{right:0;background:linear-gradient(270deg,var(--surface),transparent)}
+.ticker-track{display:flex;gap:0;animation:ticker 40s linear infinite;width:max-content}
+.ticker-item{display:flex;align-items:center;gap:8px;padding:0 32px;border-right:1px solid var(--line);white-space:nowrap}
+.ti-label{font-family:var(--mono);font-size:9px;color:var(--t3);letter-spacing:1px;text-transform:uppercase}
+.ti-val{font-family:var(--serif);font-size:15px;font-style:italic;color:var(--t1)}
+.ti-delta{font-family:var(--mono);font-size:9px}
+.ti-delta.up{color:var(--green2)}.ti-delta.dn{color:var(--red2)}.ti-delta.flat{color:var(--t3)}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* STATS STRIP */
+.stats{padding:80px 48px;display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);max-width:1100px;margin:0 auto;border-radius:12px;overflow:hidden}
+.stat-cell{background:var(--surface);padding:36px 32px;text-align:center}
+.stat-num{font-family:var(--serif);font-size:52px;font-weight:300;font-style:italic;color:var(--gold2);line-height:1;letter-spacing:-1px;margin-bottom:8px}
+.stat-lbl{font-family:var(--mono);font-size:9px;color:var(--t3);letter-spacing:1.5px;text-transform:uppercase;line-height:1.6}
+
+/* SECTIONS */
+section{padding:100px 48px;max-width:1200px;margin:0 auto}
+.section-eyebrow{font-family:var(--mono);font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:16px}
+.section-h2{font-family:var(--serif);font-size:clamp(36px,4vw,54px);font-weight:300;line-height:1.1;letter-spacing:-.5px;color:var(--t1);margin-bottom:16px}
+.section-h2 em{font-style:italic;color:var(--t2)}
+.section-sub{font-family:var(--mono);font-size:11px;color:var(--t3);line-height:1.9;max-width:480px;letter-spacing:.3px}
+
+/* FEATURES */
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border-radius:12px;overflow:hidden;margin-top:48px}
+.feat{background:var(--surface);padding:36px 32px;transition:background .2s;position:relative}
+.feat:hover{background:var(--surface2)}
+.feat::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--line3),transparent);opacity:0;transition:opacity .2s}
+.feat:hover::before{opacity:1}
+.feat-icon{font-size:22px;margin-bottom:20px;opacity:.7}
+.feat-title{font-family:var(--serif);font-size:22px;font-weight:400;font-style:italic;color:var(--t1);margin-bottom:10px;letter-spacing:-.2px}
+.feat-desc{font-family:var(--mono);font-size:10px;color:var(--t3);line-height:1.8;letter-spacing:.3px}
+.feat-tag{display:inline-block;font-family:var(--mono);font-size:8px;letter-spacing:1px;text-transform:uppercase;color:var(--gold);background:var(--gold-dim);border:1px solid var(--line3);padding:3px 8px;border-radius:3px;margin-top:14px}
+
+/* MARKET PREVIEW */
+.mkt-preview{background:var(--surface);border:1px solid var(--line2);border-radius:12px;overflow:hidden;margin-top:48px;position:relative}
+.mkt-preview::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),var(--gold2),transparent);opacity:.4}
+.mkt-preview-head{padding:20px 28px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+.mkt-preview-title{font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--t3);display:flex;align-items:center;gap:8px}
+.live-dot{width:5px;height:5px;border-radius:50%;background:var(--green2);box-shadow:0 0 6px var(--green2);animation:ldot 2s ease-in-out infinite}
+@keyframes ldot{0%,100%{opacity:1}50%{opacity:.3}}
+.mkt-preview-rate{font-family:var(--serif);font-size:14px;font-style:italic;color:var(--t2)}
+.mkt-preview-rate span{color:var(--t1)}
+.mkt-grid{display:grid;grid-template-columns:repeat(3,1fr)}
+.mkt-col-head{padding:12px 20px;font-family:var(--mono);font-size:8px;color:var(--t3);letter-spacing:1.5px;text-transform:uppercase;border-bottom:1px solid var(--line);border-right:1px solid var(--line)}
+.mkt-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;border-bottom:1px solid var(--line);transition:background .1s}
+.mkt-row:hover{background:var(--surface2)}
+.mkt-row:last-child{border:none}
+.mkt-cell{padding:13px 20px;font-family:var(--mono);font-size:10px;color:var(--t2);border-right:1px solid var(--line)}
+.mkt-cell:first-child{color:var(--t1);font-size:11px}
+.mkt-cell.up{color:var(--green2)}.mkt-cell.dn{color:var(--red2)}
+.mkt-cell-head{padding:10px 20px;font-family:var(--mono);font-size:8px;color:var(--t3);letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--line2);border-right:1px solid var(--line);background:rgba(255,255,255,.02)}
+.mkt-dot{display:inline-block;width:5px;height:5px;border-radius:50%;margin-right:7px;vertical-align:middle}
+.md-g{background:var(--green2)}.md-a{background:var(--amber)}.md-r{background:var(--red2)}
+.blur-gate{position:relative;overflow:hidden}
+.blur-gate::after{content:'';position:absolute;bottom:0;left:0;right:0;height:120px;background:linear-gradient(transparent,var(--surface));pointer-events:none}
+.unlock-cta{text-align:center;padding:28px;background:var(--surface)}
+.unlock-cta p{font-family:var(--mono);font-size:10px;color:var(--t3);margin-bottom:14px;letter-spacing:.3px}
+
+/* ML DEMO */
+.ml-demo{background:var(--surface);border:1px solid var(--line2);border-radius:12px;padding:36px;margin-top:48px;position:relative;overflow:hidden}
+.ml-demo::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--line3),transparent)}
+.ml-demo-top{display:flex;align-items:flex-start;gap:32px;margin-bottom:28px}
+.ml-big-score{font-family:var(--serif);font-size:80px;font-weight:300;font-style:italic;color:var(--green2);line-height:1;letter-spacing:-3px;flex-shrink:0}
+.ml-demo-right{}
+.ml-demo-rec{font-family:var(--serif);font-size:26px;font-weight:400;font-style:italic;color:var(--green2);margin-bottom:4px}
+.ml-demo-sub{font-family:var(--mono);font-size:9px;color:var(--t3);letter-spacing:.5px;margin-bottom:16px}
+.ml-demo-grade{display:inline-flex;align-items:center;gap:8px;background:rgba(74,158,114,.1);border:1px solid rgba(74,158,114,.2);border-radius:4px;padding:5px 12px;font-family:var(--mono);font-size:10px;color:var(--green2);letter-spacing:1px}
+.ml-bars{display:flex;flex-direction:column;gap:8px}
+.ml-bar-row{display:flex;align-items:center;gap:12px}
+.ml-bar-lbl{font-family:var(--mono);font-size:9px;color:var(--t3);width:90px;flex-shrink:0;text-transform:uppercase;letter-spacing:.5px}
+.ml-bar-bg{flex:1;height:3px;background:var(--surface3);border-radius:2px;overflow:hidden}
+.ml-bar-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--gold),var(--green2));transition:width 1.5s cubic-bezier(.4,0,.2,1)}
+.ml-bar-val{font-family:var(--mono);font-size:9px;color:var(--t2);width:28px;text-align:right;flex-shrink:0}
+.ml-demo-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border-radius:8px;overflow:hidden;margin-top:28px}
+.ml-metric{background:var(--surface2);padding:14px 16px}
+.ml-metric-lbl{font-family:var(--mono);font-size:8px;color:var(--t3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px}
+.ml-metric-val{font-family:var(--serif);font-size:22px;font-weight:400;font-style:italic}
+.ml-metric-val.pos{color:var(--green2)}.ml-metric-val.warn{color:var(--amber)}.ml-metric-val.neutral{color:var(--t1)}
+
+/* TESTIMONIALS */
+.testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:48px}
+.testi{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:28px 26px;position:relative}
+.testi::before{content:'"';position:absolute;top:18px;right:22px;font-family:var(--serif);font-size:48px;color:var(--line2);line-height:1}
+.testi-text{font-family:var(--serif);font-size:15px;font-weight:300;font-style:italic;color:var(--t1);line-height:1.7;margin-bottom:20px;letter-spacing:-.1px}
+.testi-author{display:flex;align-items:center;gap:12px}
+.testi-av{width:32px;height:32px;border-radius:50%;background:var(--surface3);border:1px solid var(--line2);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:13px;font-style:italic;color:var(--gold);flex-shrink:0}
+.testi-name{font-family:var(--mono);font-size:10px;color:var(--t1);letter-spacing:.3px}
+.testi-role{font-family:var(--mono);font-size:9px;color:var(--t3);margin-top:2px}
+.testi-stars{display:flex;gap:2px;margin-left:auto}
+.star{color:var(--gold);font-size:11px}
+
+/* PRICING */
+.pricing-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:48px;max-width:760px;margin-left:auto;margin-right:auto}
+.price-card{background:var(--surface);border:1px solid var(--line2);border-radius:12px;padding:36px;position:relative;overflow:hidden}
+.price-card.featured{border-color:var(--line3);background:var(--surface2)}
+.price-card.featured::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--gold2),var(--gold))}
+.price-pill{font-family:var(--mono);font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);background:var(--gold-dim);border:1px solid var(--line3);padding:3px 10px;border-radius:20px;display:inline-block;margin-bottom:20px}
+.price-name{font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--t3);margin-bottom:14px}
+.price-amount{font-family:var(--serif);font-size:56px;font-weight:300;font-style:italic;color:var(--t1);line-height:1;letter-spacing:-2px;margin-bottom:4px}
+.price-amount small{font-family:var(--sans);font-size:14px;color:var(--t3);font-weight:400;font-style:normal}
+.price-desc{font-family:var(--mono);font-size:9px;color:var(--t3);margin-bottom:28px;line-height:1.6;letter-spacing:.3px}
+.price-features{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:28px}
+.price-features li{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:10px;color:var(--t2)}
+.price-features li::before{content:'';width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.price-features li.yes::before{background:var(--green2)}
+.price-features li.no{color:var(--t4)}
+.price-features li.no::before{background:var(--surface3);border:1px solid var(--line2)}
+
+/* CTA BANNER */
+.cta-banner{background:linear-gradient(135deg,var(--surface2),var(--surface3));border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:80px 48px;text-align:center;position:relative;overflow:hidden}
+.cta-banner::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),var(--gold2),transparent);opacity:.5}
+.cta-banner h2{font-family:var(--serif);font-size:clamp(36px,4vw,56px);font-weight:300;font-style:italic;color:var(--t1);margin-bottom:16px;letter-spacing:-.5px}
+.cta-banner p{font-family:var(--mono);font-size:11px;color:var(--t3);max-width:400px;margin:0 auto 32px;line-height:1.8;letter-spacing:.3px}
+
+/* FOOTER */
+footer{padding:48px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.foot-logo{font-family:var(--serif);font-size:18px;font-style:italic;color:var(--t2)}
+.foot-links{display:flex;gap:24px}
+.foot-link{font-family:var(--mono);font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--t4);text-decoration:none;transition:color .15s}
+.foot-link:hover{color:var(--t2)}
+.foot-copy{font-family:var(--mono);font-size:9px;color:var(--t4);letter-spacing:.3px}
+
+/* AUTH OVERLAY */
+.overlay{position:fixed;inset:0;background:rgba(11,10,8,.9);z-index:9000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(24px);opacity:0;pointer-events:none;transition:opacity .3s}
+.overlay.on{opacity:1;pointer-events:all}
+.modal{background:var(--surface2);border:1px solid var(--line2);border-radius:12px;padding:44px 48px;width:100%;max-width:400px;box-shadow:0 40px 80px rgba(0,0,0,.5);position:relative;transform:translateY(16px);transition:transform .3s}
+.overlay.on .modal{transform:none}
+.modal-close{position:absolute;top:18px;right:20px;background:none;border:none;color:var(--t3);cursor:pointer;font-size:16px;line-height:1;padding:4px}
+.modal-close:hover{color:var(--t1)}
+.modal-eyebrow{font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.modal-title{font-family:var(--serif);font-size:30px;font-weight:300;font-style:italic;color:var(--t1);margin-bottom:4px;letter-spacing:-.3px}
+.modal-sub{font-family:var(--mono);font-size:10px;color:var(--t3);margin-bottom:26px;letter-spacing:.3px}
+.seg{display:flex;background:var(--surface3);border:1px solid var(--line);border-radius:4px;padding:3px;margin-bottom:20px}
+.seg-b{flex:1;padding:8px;border:none;background:none;font-family:var(--sans);font-size:12px;color:var(--t3);cursor:pointer;border-radius:3px;transition:all .15s}
+.seg-b.on{background:var(--surface4);color:var(--t1)}
+.field{margin-bottom:12px}
+.field label{display:block;font-family:var(--mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3);margin-bottom:5px}
+.field input{width:100%;background:var(--surface3);border:1px solid var(--line2);border-radius:4px;color:var(--t1);font-family:var(--mono);font-size:12px;padding:9px 12px;outline:none;transition:all .15s}
+.field input:focus{border-color:rgba(201,168,76,.4);background:var(--surface4)}
+.field input::placeholder{color:var(--t4)}
+.err{font-family:var(--mono);font-size:10px;color:var(--red2);margin-top:5px;display:none}
+.lnk{background:none;border:none;color:var(--gold);font-size:10px;font-family:var(--mono);cursor:pointer;display:block;text-align:center;margin-top:10px;text-decoration:underline;text-underline-offset:3px;letter-spacing:.3px}
+.lnk:hover{color:var(--gold2)}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:28px;background:var(--surface3);border:1px solid var(--line2);color:var(--t1);border-radius:8px;padding:10px 18px;font-family:var(--mono);font-size:10px;z-index:9999;transform:translateY(60px);opacity:0;transition:all .3s cubic-bezier(.4,0,.2,1);box-shadow:0 8px 32px rgba(0,0,0,.4);display:flex;align-items:center;gap:9px}
+.toast.on{transform:none;opacity:1}
+.toast-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);flex-shrink:0}
+
+/* ANIM */
+.fade-up{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}
+.fade-up.visible{opacity:1;transform:none}
+.stagger-1{transition-delay:.1s}.stagger-2{transition-delay:.2s}.stagger-3{transition-delay:.3s}.stagger-4{transition-delay:.4s}.stagger-5{transition-delay:.5s}
+
+@media(max-width:900px){
+  .nav-links{display:none}
+  .stats{grid-template-columns:1fr 1fr;padding:48px 24px}
+  .features-grid{grid-template-columns:1fr}
+  .testi-grid{grid-template-columns:1fr}
+  .pricing-grid{grid-template-columns:1fr;max-width:420px}
+  .mkt-row{grid-template-columns:1fr 1fr 1fr}
+  section{padding:60px 24px}
+  .hero{padding:100px 24px 60px}
+  footer{flex-direction:column;gap:20px;padding:32px 24px}
+}
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div class="toast" id="toast"><div class="toast-dot"></div><span id="toast-msg"></span></div>
+
+<!-- AUTH OVERLAY -->
+<div class="overlay" id="auth-overlay" onclick="overlayClick(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeAuth()">✕</button>
+    <div class="modal-eyebrow">Plutur</div>
+    <div class="modal-title" id="modal-title">Welcome back.</div>
+    <div class="modal-sub" id="modal-sub">Sign in to your account</div>
+    <div class="seg">
+      <button class="seg-b on" id="seg-l" onclick="authTab('l')">Sign in</button>
+      <button class="seg-b" id="seg-s" onclick="authTab('s')">Create account</button>
+    </div>
+    <div id="form-l">
+      <div class="field"><label>Email</label><input type="email" id="l-em" placeholder="you@email.com" autocomplete="email"></div>
+      <div class="field"><label>Password</label><input type="password" id="l-pw" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <div class="err" id="l-err">Incorrect email or password.</div>
+      <button class="btn btn-gold btn-full" onclick="doLogin()">Sign in →</button>
+      <button class="lnk" onclick="authTab('s')">No account? Create one free</button>
+    </div>
+    <div id="form-s" class="hidden">
+      <div class="field"><label>Full name</label><input type="text" id="s-nm" placeholder="Jane Smith" autocomplete="name"></div>
+      <div class="field"><label>Email</label><input type="email" id="s-em" placeholder="you@email.com" autocomplete="email"></div>
+      <div class="field"><label>Password</label><input type="password" id="s-pw" placeholder="Minimum 6 characters" autocomplete="new-password" onkeydown="if(event.key==='Enter')doSignup()"></div>
+      <div class="err" id="s-err">Please complete all fields.</div>
+      <button class="btn btn-gold btn-full" onclick="doSignup()">Start for free →</button>
+      <button class="lnk" onclick="authTab('l')">Already have an account?</button>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="nav" id="nav">
+  <a href="#" class="nav-logo"><div class="nav-logo-mark">P</div>Plutur</a>
+  <div class="nav-links">
+    <a href="#features" class="nav-link">Features</a>
+    <a href="#markets" class="nav-link">Markets</a>
+    <a href="#pricing" class="nav-link">Pricing</a>
+  </div>
+  <div class="nav-ctas">
+    <button class="btn btn-ghost btn-sm" onclick="openAuth('l')">Sign in</button>
+    <button class="btn btn-gold btn-sm" onclick="openAuth('s')">Start free →</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-tag"><div class="hero-tag-dot"></div>Now live — 30+ U.S. markets</div>
+  <h1 class="hero-h1">The smartest way to<br>analyze <em>real estate deals.</em></h1>
+  <p class="hero-sub">ML-powered deal scoring. Live market data for every city. An AI advisor that knows real estate. Built for investors who take numbers seriously.</p>
+  <div class="hero-ctas">
+    <button class="btn btn-gold btn-lg" onclick="openAuth('s')">Start for free →</button>
+    <button class="btn btn-ghost btn-lg" onclick="openAuth('l')">Sign in</button>
+  </div>
+  <div class="hero-social">
+    <div class="hero-avatars">
+      <span>J</span><span>M</span><span>R</span><span>A</span><span>K</span>
+    </div>
+    &nbsp;Trusted by 400+ real estate investors
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker-bar">
+  <div class="ticker-track" id="ticker">
+    <div class="ticker-item"><span class="ti-label">30yr Fixed</span><span class="ti-val" id="t-rate">6.89%</span><span class="ti-delta flat">—</span></div>
+    <div class="ticker-item"><span class="ti-label">Tampa Cap Rate</span><span class="ti-val">5.8%</span><span class="ti-delta up">↑</span></div>
+    <div class="ticker-item"><span class="ti-label">Nashville STR Occ</span><span class="ti-val">74%</span><span class="ti-delta up">↑</span></div>
+    <div class="ticker-item"><span class="ti-label">Destin Nightly</span><span class="ti-val">$295</span><span class="ti-delta up">↑</span></div>
+    <div class="ticker-item"><span class="ti-label">US Avg Rent</span><span class="ti-val">$1,824</span><span class="ti-delta flat">→</span></div>
+    <div class="ticker-item"><span class="ti-label">Key West 3BR</span><span class="ti-val">$680/night</span><span class="ti-delta up">↑</span></div>
+    <div class="ticker-item"><span class="ti-label">Gatlinburg Cap</span><span class="ti-val">6.8%</span><span class="ti-delta up">↑</span></div>
+    <div class="ticker-item"><span class="ti-label">Phoenix Occ</span><span class="ti-val">68%</span><span class="ti-delta flat">→</span></div>
+    <!-- duplicate for seamless loop -->
+    <div class="ticker-item"><span class="ti-label">30yr Fixed</span><span class="ti-val" id="t-rate2">6.89%</span><span class="ti-delta flat">—</span></div>
+    <div class="ticker-item"><span class="ti-label">Tampa Cap Rate</span><span class="ti-val">5.8%</span><span class="ti-delta up">↑</span></div>
+    <div class="ticker-item"><span class="ti-label">Nashville STR Occ</span><span class="ti-val">74%</span><span class="ti-delta up">↑</span></div>
+    <div class="ticker-item"><span class="ti-label">Destin Nightly</span><span class="ti-val">$295</span><span class="ti-delta up">↑</span></div>
+    <div class="ticker-item"><span class="ti-label">US Avg Rent</span><span class="ti-val">$1,824</span><span class="ti-delta flat">→</span></div>
+    <div class="ticker-item"><span class="ti-label">Key West 3BR</span><span class="ti-val">$680/night</span><span class="ti-delta up">↑</span></div>
+    <div class="ticker-item"><span class="ti-label">Gatlinburg Cap</span><span class="ti-val">6.8%</span><span class="ti-delta up">↑</span></div>
+    <div class="ticker-item"><span class="ti-label">Phoenix Occ</span><span class="ti-val">68%</span><span class="ti-delta flat">→</span></div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div style="padding:0 48px;margin-top:80px">
+  <div class="stats fade-up">
+    <div class="stat-cell"><div class="stat-num">30+</div><div class="stat-lbl">U.S. markets<br>covered</div></div>
+    <div class="stat-cell"><div class="stat-num">5</div><div class="stat-lbl">Property types<br>analyzed</div></div>
+    <div class="stat-cell"><div class="stat-num">100</div><div class="stat-lbl">ML deal score<br>scale</div></div>
+    <div class="stat-cell"><div class="stat-num">$29</div><div class="stat-lbl">Per month,<br>unlimited</div></div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="section-eyebrow">What you get</div>
+  <h2 class="section-h2">Everything a serious investor<br><em>actually needs.</em></h2>
+  <p class="section-sub">Not a spreadsheet. Not a guessing game. Real data, real scoring, real intelligence — for every deal you look at.</p>
+
+  <div class="features-grid fade-up">
+    <div class="feat">
+      <div class="feat-icon">◈</div>
+      <div class="feat-title">ML Deal Scoring</div>
+      <div class="feat-desc">Every deal gets a 0–100 score based on cash flow, CoC return, cap rate, the 1% rule, and vacancy risk. Graded A+ to F. No more gut feel.</div>
+      <div class="feat-tag">AI-Powered</div>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">◉</div>
+      <div class="feat-title">Live Market Data</div>
+      <div class="feat-desc">Nightly STR rates, occupancy, long-term rental comps, and median values for 30+ U.S. cities. Auto-fills your analyzer in one click.</div>
+      <div class="feat-tag">Live · 30+ Cities</div>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">◎</div>
+      <div class="feat-title">AI Investment Advisor</div>
+      <div class="feat-desc">Ask anything — cap rate benchmarks, market comparisons, deal strategy, financing options. A real estate expert available 24/7.</div>
+      <div class="feat-tag">Powered by Claude</div>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">⊙</div>
+      <div class="feat-title">Neighborhood Intel</div>
+      <div class="feat-desc">Enter any U.S. address. Get walk score, school ratings, crime index, rental comps within 0.5mi, and recent sales — all pinpointed to that block.</div>
+      <div class="feat-tag">Address-Level</div>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">✦</div>
+      <div class="feat-title">5 Property Analyzers</div>
+      <div class="feat-desc">Single family, multi-family, Airbnb STR, arbitrage, and commercial RE. Each with full waterfall P&L, institutional-grade metrics, and PDF export.</div>
+      <div class="feat-tag">SFR · MFR · STR · ARB · COM</div>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">⇌</div>
+      <div class="feat-title">Side-by-Side Compare</div>
+      <div class="feat-desc">Run two properties head-to-head across 8 metrics. Plutur picks the winner. Export the comparison as a branded PDF to share with partners.</div>
+      <div class="feat-tag">PDF Export</div>
+    </div>
+  </div>
+</section>
+
+<!-- ML SCORE DEMO -->
+<section style="padding-top:0">
+  <div class="section-eyebrow">ML Deal Score</div>
+  <h2 class="section-h2">What does <em>78 / 100</em><br>actually mean?</h2>
+  <p class="section-sub">It means buy. Here's a live example of how Plutur scores a $350K single family rental in Tampa, FL.</p>
+
+  <div class="ml-demo fade-up">
+    <div class="ml-demo-top">
+      <div class="ml-big-score" id="ml-score-demo">0</div>
+      <div class="ml-demo-right">
+        <div class="ml-demo-rec">Strong Buy</div>
+        <div class="ml-demo-sub">ML Deal Score · Plutur Intelligence Engine · Tampa, FL SFR</div>
+        <div class="ml-demo-grade">Grade A · Above benchmark</div>
+      </div>
+    </div>
+    <div class="ml-bars">
+      <div class="ml-bar-row"><div class="ml-bar-lbl">Cash Flow</div><div class="ml-bar-bg"><div class="ml-bar-fill" id="bar-cf" style="width:0%"></div></div><div class="ml-bar-val">20/25</div></div>
+      <div class="ml-bar-row"><div class="ml-bar-lbl">CoC Return</div><div class="ml-bar-bg"><div class="ml-bar-fill" id="bar-coc" style="width:0%"></div></div><div class="ml-bar-val">20/25</div></div>
+      <div class="ml-bar-row"><div class="ml-bar-lbl">Cap Rate</div><div class="ml-bar-bg"><div class="ml-bar-fill" id="bar-cap" style="width:0%"></div></div><div class="ml-bar-val">16/20</div></div>
+      <div class="ml-bar-row"><div class="ml-bar-lbl">1% Rule</div><div class="ml-bar-bg"><div class="ml-bar-fill" id="bar-one" style="width:0%"></div></div><div class="ml-bar-val">12/15</div></div>
+      <div class="ml-bar-row"><div class="ml-bar-lbl">Vacancy</div><div class="ml-bar-bg"><div class="ml-bar-fill" id="bar-vac" style="width:0%"></div></div><div class="ml-bar-val">12/15</div></div>
+    </div>
+    <div class="ml-demo-metrics">
+      <div class="ml-metric"><div class="ml-metric-lbl">Monthly CF</div><div class="ml-metric-val pos">$387</div></div>
+      <div class="ml-metric"><div class="ml-metric-lbl">Cash-on-Cash</div><div class="ml-metric-val pos">9.2%</div></div>
+      <div class="ml-metric"><div class="ml-metric-lbl">Cap Rate</div><div class="ml-metric-val warn">5.8%</div></div>
+      <div class="ml-metric"><div class="ml-metric-lbl">1% Rule</div><div class="ml-metric-val neutral">0.63%</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- MARKET DATA PREVIEW -->
+<section id="markets">
+  <div class="section-eyebrow">Live market intelligence</div>
+  <h2 class="section-h2">Know your market<br><em>before you make an offer.</em></h2>
+  <p class="section-sub">Real STR rates, occupancy data, and rental comps for the markets investors actually care about.</p>
+
+  <div class="mkt-preview fade-up">
+    <div class="mkt-preview-head">
+      <div class="mkt-preview-title"><div class="live-dot"></div>Live market feed · Top STR markets</div>
+      <div class="mkt-preview-rate">30yr Fixed: <span id="mkt-rate-display">6.89%</span></div>
+    </div>
+    <div class="blur-gate">
+      <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr">
+        <div class="mkt-cell-head">Market</div>
+        <div class="mkt-cell-head">Nightly (2BR)</div>
+        <div class="mkt-cell-head">Occupancy</div>
+        <div class="mkt-cell-head">LT Rent</div>
+        <div class="mkt-cell-head">Cap Rate</div>
+      </div>
+      <div class="mkt-row"><div class="mkt-cell"><span class="mkt-dot md-g"></span>Gatlinburg, TN</div><div class="mkt-cell">$248</div><div class="mkt-cell up">76%</div><div class="mkt-cell">$1,950</div><div class="mkt-cell up">6.8%</div></div>
+      <div class="mkt-row"><div class="mkt-cell"><span class="mkt-dot md-g"></span>Key West, FL</div><div class="mkt-cell">$450</div><div class="mkt-cell up">80%</div><div class="mkt-cell">$4,500</div><div class="mkt-cell up">3.0%</div></div>
+      <div class="mkt-row"><div class="mkt-cell"><span class="mkt-dot md-g"></span>Nashville, TN</div><div class="mkt-cell">$278</div><div class="mkt-cell up">75%</div><div class="mkt-cell">$2,890</div><div class="mkt-cell">5.6%</div></div>
+      <div class="mkt-row"><div class="mkt-cell"><span class="mkt-dot md-g"></span>Destin, FL</div><div class="mkt-cell">$295</div><div class="mkt-cell">74%</div><div class="mkt-cell">$2,600</div><div class="mkt-cell">4.8%</div></div>
+      <div class="mkt-row" style="filter:blur(3px);pointer-events:none"><div class="mkt-cell"><span class="mkt-dot md-a"></span>Scottsdale, AZ</div><div class="mkt-cell">$268</div><div class="mkt-cell">70%</div><div class="mkt-cell">$3,000</div><div class="mkt-cell">4.5%</div></div>
+      <div class="mkt-row" style="filter:blur(3px);pointer-events:none"><div class="mkt-cell"><span class="mkt-dot md-a"></span>Miami Beach, FL</div><div class="mkt-cell">$312</div><div class="mkt-cell">73%</div><div class="mkt-cell">$3,900</div><div class="mkt-cell">3.2%</div></div>
+    </div>
+    <div class="unlock-cta">
+      <p>Sign up free to unlock all 30+ markets with full data</p>
+      <button class="btn btn-gold" onclick="openAuth('s')">Unlock all markets →</button>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section>
+  <div class="section-eyebrow">From our users</div>
+  <h2 class="section-h2">What investors<br><em>are saying.</em></h2>
+
+  <div class="testi-grid">
+    <div class="testi fade-up stagger-1">
+      <p class="testi-text">I analyzed 12 deals in an afternoon that would have taken me a week on spreadsheets. The ML score alone saved me from a bad duplex in Memphis.</p>
+      <div class="testi-author">
+        <div class="testi-av">M</div>
+        <div><div class="testi-name">Marcus T.</div><div class="testi-role">SFR investor · 14 units</div></div>
+        <div class="testi-stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+      </div>
+    </div>
+    <div class="testi fade-up stagger-2">
+      <p class="testi-text">The Airbnb market data is what sold me. I typed in Destin and had real nightly rates, occupancy, and revenue projections in 10 seconds. It's accurate.</p>
+      <div class="testi-author">
+        <div class="testi-av">R</div>
+        <div><div class="testi-name">Rachel K.</div><div class="testi-role">STR investor · Destin, FL</div></div>
+        <div class="testi-stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+      </div>
+    </div>
+    <div class="testi fade-up stagger-3">
+      <p class="testi-text">I've tried Mashvisor, Roofstock, all of them. Plutur is simpler, faster, and the AI advisor actually understands real estate questions instead of giving generic answers.</p>
+      <div class="testi-author">
+        <div class="testi-av">J</div>
+        <div><div class="testi-name">James O.</div><div class="testi-role">Multi-family · 3 properties</div></div>
+        <div class="testi-stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div style="text-align:center">
+    <div class="section-eyebrow" style="display:inline-block">Pricing</div>
+    <h2 class="section-h2" style="text-align:center">Simple. <em>Flat rate.</em></h2>
+    <p class="section-sub" style="margin:0 auto;text-align:center">No per-report fees. No hidden add-ons. One subscription unlocks everything.</p>
+  </div>
+  <div class="pricing-grid fade-up">
+    <div class="price-card">
+      <div class="price-name">Free</div>
+      <div class="price-amount">$0<small>/mo</small></div>
+      <div class="price-desc">Get started, no card required. 3 analyses per day to test the platform.</div>
+      <ul class="price-features">
+        <li class="yes">3 deal analyses per day</li>
+        <li class="yes">Single family analyzer</li>
+        <li class="yes">Basic cash flow modeling</li>
+        <li class="no">Market data (30+ cities)</li>
+        <li class="no">ML deal scoring</li>
+        <li class="no">AI Investment Advisor</li>
+        <li class="no">Neighborhood Intel</li>
+        <li class="no">PDF reports</li>
+        <li class="no">Multi-family, STR, Commercial</li>
+      </ul>
+      <button class="btn btn-ghost btn-full" onclick="openAuth('s')">Start free →</button>
+    </div>
+    <div class="price-card featured">
+      <div class="price-pill">Most popular</div>
+      <div class="price-name">Pro</div>
+      <div class="price-amount">$29<small>/mo</small></div>
+      <div class="price-desc">Everything, unlimited. Cancel anytime. The full Plutur platform.</div>
+      <ul class="price-features">
+        <li class="yes">Unlimited deal analyses</li>
+        <li class="yes">All 5 property types</li>
+        <li class="yes">Live market data · 30+ cities</li>
+        <li class="yes">ML deal scoring (0–100)</li>
+        <li class="yes">AI Investment Advisor</li>
+        <li class="yes">Neighborhood Intel (address-level)</li>
+        <li class="yes">Branded PDF reports</li>
+        <li class="yes">Deal comparison tool</li>
+        <li class="yes">Deal history & analytics</li>
+      </ul>
+      <button class="btn btn-gold btn-full" onclick="openAuth('s')">Start for free · Upgrade anytime →</button>
+    </div>
+  </div>
+  <p style="text-align:center;font-family:var(--mono);font-size:9px;color:var(--t4);margin-top:20px;letter-spacing:.3px">Secured by Stripe · Cancel anytime · No contracts</p>
+</section>
+
+<!-- CTA BANNER -->
+<div class="cta-banner">
+  <h2>Stop leaving deals on the table.</h2>
+  <p>Join investors already using Plutur to find, score, and compare real estate deals faster than ever.</p>
+  <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+    <button class="btn btn-gold btn-lg" onclick="openAuth('s')">Start for free →</button>
+    <button class="btn btn-ghost btn-lg" onclick="openAuth('l')">Sign in</button>
+  </div>
+  <p style="font-family:var(--mono);font-size:9px;color:var(--t4);margin-top:16px;letter-spacing:.3px">Free tier · No credit card required · Upgrade anytime</p>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="foot-logo">Plutur</div>
+  <div class="foot-links">
+    <a href="#features" class="foot-link">Features</a>
+    <a href="#markets" class="foot-link">Markets</a>
+    <a href="#pricing" class="foot-link">Pricing</a>
+    <a href="mailto:hello@plutur.com" class="foot-link">Contact</a>
+  </div>
+  <div class="foot-copy">© 2025 Plutur · Not financial advice</div>
+</footer>
+
+<script>
+// ── NAV SCROLL ──
+window.addEventListener('scroll',()=>{
+  document.getElementById('nav').classList.toggle('scrolled',window.scrollY>40);
+});
+
+// ── FADE IN ON SCROLL ──
+const obs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
+},{threshold:.15});
+document.querySelectorAll('.fade-up').forEach(el=>obs.observe(el));
+
+// ── ML SCORE ANIMATION ──
+function animateML(){
+  const el = document.getElementById('ml-score-demo');
+  const bars = [
+    {id:'bar-cf', pct:80},
+    {id:'bar-coc', pct:80},
+    {id:'bar-cap', pct:80},
+    {id:'bar-one', pct:80},
+    {id:'bar-vac', pct:80},
+  ];
+  let count = 0;
+  const target = 78;
+  const interval = setInterval(()=>{
+    count += 2;
+    if(count >= target){ count = target; clearInterval(interval); }
+    el.textContent = count;
+  }, 20);
+  bars.forEach((b,i)=>{
+    setTimeout(()=>{
+      const bar = document.getElementById(b.id);
+      if(bar) bar.style.width = b.pct+'%';
+    }, i*120 + 300);
+  });
+}
+// Trigger when ML demo comes into view
+const mlObs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{ if(e.isIntersecting){ animateML(); mlObs.disconnect(); } });
+},{threshold:.3});
+const mlDemo = document.querySelector('.ml-demo');
+if(mlDemo) mlObs.observe(mlDemo);
+
+// ── LIVE RATE ──
+async function fetchRate(){
+  try{
+    const r = await fetch('https://api.stlouisfed.org/fred/series/observations?series_id=MORTGAGE30US&api_key=demo&sort_order=desc&limit=1&file_type=json');
+    const d = await r.json();
+    const rate = parseFloat(d.observations?.[0]?.value);
+    if(!isNaN(rate)){
+      const fmt = rate.toFixed(2)+'%';
+      ['t-rate','t-rate2','mkt-rate-display'].forEach(id=>{
+        const el=document.getElementById(id);if(el)el.textContent=fmt;
+      });
+    }
+  }catch(e){}
+}
+fetchRate();
+
+// ── AUTH ──
+const HIDDEN = 'hidden';
+function toast(msg){
+  const t=document.getElementById('toast');
+  document.getElementById('toast-msg').textContent=msg;
+  t.classList.add('on');
+  setTimeout(()=>t.classList.remove('on'),3000);
+}
+function openAuth(tab){
+  document.getElementById('auth-overlay').classList.add('on');
+  authTab(tab);
+  if(tab==='s'){
+    document.getElementById('modal-title').textContent='Start for free.';
+    document.getElementById('modal-sub').textContent='Create your account — no card required';
+  } else {
+    document.getElementById('modal-title').textContent='Welcome back.';
+    document.getElementById('modal-sub').textContent='Sign in to your account';
+  }
+}
+function closeAuth(){document.getElementById('auth-overlay').classList.remove('on')}
+function overlayClick(e){if(e.target===document.getElementById('auth-overlay'))closeAuth()}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAuth()});
+
+function authTab(t){
+  document.getElementById('seg-l').classList.toggle('on',t==='l');
+  document.getElementById('seg-s').classList.toggle('on',t==='s');
+  document.getElementById('form-l').classList.toggle(HIDDEN,t!=='l');
+  document.getElementById('form-s').classList.toggle(HIDDEN,t!=='s');
+}
+
+function doLogin(){
+  const em=document.getElementById('l-em').value.trim();
+  const pw=document.getElementById('l-pw').value;
+  const err=document.getElementById('l-err'); err.style.display='none';
+  if(!em||!pw){err.textContent='Please fill in all fields.';err.style.display='block';return}
+  const users=JSON.parse(localStorage.getItem('plutur_v2')||'{}');
+  if(!users[em]||users[em].pw!==btoa(pw)){err.style.display='block';return}
+  // Save session and redirect to app
+  localStorage.setItem('plutur_sess_v2',em);
+  toast('Signing you in...');
+  setTimeout(()=>{ window.location.href='plutur_v4_neighborhood.html'; },800);
+}
+
+function doSignup(){
+  const nm=document.getElementById('s-nm').value.trim();
+  const em=document.getElementById('s-em').value.trim();
+  const pw=document.getElementById('s-pw').value;
+  const err=document.getElementById('s-err'); err.style.display='none';
+  if(!nm||!em||pw.length<6){
+    err.textContent=(!nm||!em)?'Please complete all fields.':'Password must be 6+ characters.';
+    err.style.display='block';return;
+  }
+  const users=JSON.parse(localStorage.getItem('plutur_v2')||'{}');
+  if(users[em]){err.textContent='Account exists. Please sign in.';err.style.display='block';return}
+  const u={nm,em,pw:btoa(pw),plan:'pro',ud:0,udate:new Date().toDateString()};
+  users[em]=u;
+  localStorage.setItem('plutur_v2',JSON.stringify(users));
+  localStorage.setItem('plutur_sess_v2',em);
+  toast('Account created. Loading your platform...');
+  setTimeout(()=>{ window.location.href='plutur_v4_neighborhood.html'; },900);
+}
+
+// Auto-redirect if already logged in
+window.addEventListener('DOMContentLoaded',()=>{
+  const sess=localStorage.getItem('plutur_sess_v2');
+  const users=JSON.parse(localStorage.getItem('plutur_v2')||'{}');
+  if(sess && users[sess]){
+    // Show "Continue to app" in nav instead of sign in
+    const ctas=document.querySelector('.nav-ctas');
+    ctas.innerHTML=`<span style="font-family:var(--mono);font-size:10px;color:var(--t3);letter-spacing:.5px">Signed in as ${users[sess].nm.split(' ')[0]}</span><a href="plutur_v4_neighborhood.html" class="btn btn-gold btn-sm">Open Plutur →</a>`;
+  }
+});
+</script>
+</body>
+</html>
