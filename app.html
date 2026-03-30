@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1719,8 +1719,8 @@ hr.div { border: none; border-top: 1px solid var(--line); margin: 20px 0; }
 </div><!-- /shell -->
 
 <script>
-const API_URL = 'https://web-production-5b588.up.railway.app';
-const USE_BACKEND = true;
+const API_URL='https://your-backend.railway.app';
+const USE_BACKEND=false;
 
 // ── STATE ──────────────────────────────────────
 let CU=null,TOKEN=null,LR={},CH=[],SP='free';
@@ -1832,7 +1832,7 @@ function updateUI(){
   document.getElementById('sb-plan').textContent=pro?'Pro':'Free';
   document.getElementById('upgrade-btn').style.display=pro?'none':'block';
   document.getElementById('usage-pill').style.display=pro?'none':'flex';
-  ['mfr','str','arb','com','cmp','ai','mkt'].forEach(k=>{
+  ['mfr','str','arb','com','cmp','ai','mkt','nb'].forEach(k=>{
     const g=document.getElementById(k+'-gate'),c=document.getElementById(k+'-content');
     if(g){g.classList.toggle('hidden',pro);if(c)c.classList.toggle('hidden',!pro)}
   });
@@ -2460,17 +2460,7 @@ function prefillAnalyzer(type) {
   }
 }
 
-// Also add neighborhood to the gate logic in updateUI
-const _origUpdateUI = updateUI;
-function updateUI() {
-  _origUpdateUI();
-  if(CU) {
-    const pro = CU.plan === 'pro';
-    const g = document.getElementById('nb-gate');
-    const c = document.getElementById('nb-content');
-    if(g){ g.classList.toggle('hidden', pro); if(c) c.classList.toggle('hidden', !pro); }
-  }
-}
+
 </script>
 </body>
 </html>
