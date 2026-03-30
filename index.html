@@ -645,7 +645,7 @@ function doLogin(){
   // Save session and redirect to app
   localStorage.setItem('plutur_sess_v2',em);
   toast('Signing you in...');
-  setTimeout(()=>{ window.location.href='plutur_v4_neighborhood.html'; },800);
+  setTimeout(()=>{ window.location.href='app.html'; },800);
 }
 
 function doSignup(){
@@ -664,7 +664,7 @@ function doSignup(){
   localStorage.setItem('plutur_v2',JSON.stringify(users));
   localStorage.setItem('plutur_sess_v2',em);
   toast('Account created. Loading your platform...');
-  setTimeout(()=>{ window.location.href='plutur_v4_neighborhood.html'; },900);
+  setTimeout(()=>{ window.location.href='app.html'; },900);
 }
 
 // Auto-redirect if already logged in
@@ -674,7 +674,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   if(sess && users[sess]){
     // Show "Continue to app" in nav instead of sign in
     const ctas=document.querySelector('.nav-ctas');
-    ctas.innerHTML=`<span style="font-family:var(--mono);font-size:10px;color:var(--t3);letter-spacing:.5px">Signed in as ${users[sess].nm.split(' ')[0]}</span><a href="plutur_v4_neighborhood.html" class="btn btn-gold btn-sm">Open Plutur →</a>`;
+    ctas.innerHTML=`<span style="font-family:var(--mono);font-size:10px;color:var(--t3);letter-spacing:.5px">Signed in as ${users[sess].nm.split(' ')[0]}</span><a href="app.html" class="btn btn-gold btn-sm">Open Plutur →</a>`;
   }
 });
 </script>
