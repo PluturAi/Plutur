@@ -1,4 +1,4 @@
-!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1064,14 +1064,6 @@ hr.div { border: none; border-top: 1px solid var(--line); margin: 20px 0; }
         <div class="plan-list">Unlimited analyses<br>All 5 property types<br>Live market data<br>ML deal scoring<br>AI Advisor<br>PDF reports</div>
       </div>
     </div>
-    <div id="stripe-fields" class="hidden">
-      <div class="field"><label>Card number</label><input type="text" id="cn" placeholder="4242 4242 4242 4242" maxlength="19" oninput="fmtCard(this)"></div>
-      <div class="card-row">
-        <div class="field"><label>Expiry</label><input type="text" id="ce" placeholder="MM/YY" maxlength="5"></div>
-        <div class="field"><label>CVC</label><input type="text" id="cv" placeholder="123" maxlength="3"></div>
-      </div>
-      <div class="err" id="pay-err">Please enter valid card details.</div>
-    </div>
     <button class="btn btn-gold btn-full" id="pw-cta" onclick="handlePW()">Continue free →</button>
     <div class="stripe-note">🔒 Secured by Stripe · Cancel anytime</div>
   </div>
@@ -1719,16 +1711,32 @@ hr.div { border: none; border-top: 1px solid var(--line); margin: 20px 0; }
 </div><!-- /shell -->
 
 <script>
-const API_URL='https://your-backend.railway.app';
-const USE_BACKEND=false;
+const API_URL='https://web-production-5b588.up.railway.app';
+const SUPABASE_URL='https://riiuflqejvzntqnwxgjh.supabase.co';
+const SUPABASE_ANON='sb_publishable_JoTp60Q5Dsk3v-xSEWstPw_WcDqAA7_';
 
 // ── STATE ──────────────────────────────────────
 let CU=null,TOKEN=null,LR={},CH=[],SP='free';
 let sessionCount=0,sessionComps=0,bestScore=null,bestCF=null;
 let lastMkt=null,lastArbMkt=null;
-let NB_DATA=null; // last neighborhood lookup
+let NB_DATA=null;
 const TITLES={dashboard:'Dashboard',market:'Market Data',history:'Deal History',sfr:'Single Family',mfr:'Multi-Family',airbnb:'Airbnb / STR',arbitrage:'Arbitrage',commercial:'Commercial',compare:'Compare',ai:'AI Advisor',neighborhood:'Neighborhood Intel'};
 const SYS='You are Plutur AI, an expert real estate investment advisor at plutur.com. Specialize in SFR, multi-family, Airbnb STR, arbitrage, and commercial RE. Give clear, direct, actionable advice with specific numbers. Be concise and professional. Never give legal or tax advice.';
+
+// ── SUPABASE CLIENT ─────────────────────────────
+async function sbFetch(path,opts={}){
+  const headers={'apikey':SUPABASE_ANON,'Content-Type':'application/json',...(opts.headers||{})};
+  if(TOKEN) headers['Authorization']='Bearer '+TOKEN;
+  const res=await fetch(SUPABASE_URL+path,{...opts,headers});
+  return res;
+}
+async function sbAuth(path,body){
+  return fetch(SUPABASE_URL+'/auth/v1/'+path,{
+    method:'POST',
+    headers:{'apikey':SUPABASE_ANON,'Content-Type':'application/json'},
+    body:JSON.stringify(body)
+  }).then(r=>r.json());
+}
 
 // ── UTILS ──────────────────────────────────────
 const $f=n=>'$'+Math.round(n).toLocaleString();
@@ -1796,34 +1804,48 @@ function authTab(t){
   document.getElementById('form-l').classList.toggle('hidden',t!=='l');
   document.getElementById('form-s').classList.toggle('hidden',t!=='s');
 }
-function doLogin(){
+async function doLogin(){
   const em=document.getElementById('l-em').value.trim(),pw=document.getElementById('l-pw').value;
   const err=document.getElementById('l-err');err.style.display='none';
   if(!em||!pw){err.textContent='Please fill in all fields.';err.style.display='block';return}
-  const users=JSON.parse(localStorage.getItem('plutur_v2')||'{}');
-  if(!users[em]||users[em].pw!==btoa(pw)){err.style.display='block';return}
-  loginOK(users[em]);
+  const btn=document.querySelector('#form-l .btn-gold');btn.textContent='Signing in...';btn.disabled=true;
+  try{
+    const data=await sbAuth('token?grant_type=password',{email:em,password:pw});
+    if(data.error||!data.access_token){err.textContent=data.error_description||'Incorrect email or password.';err.style.display='block';btn.textContent='Sign in →';btn.disabled=false;return}
+    TOKEN=data.access_token;
+    // fetch profile from backend
+    const prof=await fetch(API_URL+'/api/auth/profile',{headers:{'Authorization':'Bearer '+TOKEN}}).then(r=>r.json());
+    loginOK({nm:prof.name||em.split('@')[0],em,plan:prof.plan||'free',ud:prof.analyses_today||0,udate:prof.analyses_date||today()});
+  }catch(e){err.textContent='Connection error. Try again.';err.style.display='block';btn.textContent='Sign in →';btn.disabled=false;}
 }
-function doSignup(){
+async function doSignup(){
   const nm=document.getElementById('s-nm').value.trim(),em=document.getElementById('s-em').value.trim(),pw=document.getElementById('s-pw').value;
   const err=document.getElementById('s-err');err.style.display='none';
   if(!nm||!em||pw.length<6){err.textContent=(!nm||!em)?'Please complete all fields.':'Password must be 6+ characters.';err.style.display='block';return}
-  const users=JSON.parse(localStorage.getItem('plutur_v2')||'{}');
-  if(users[em]){err.textContent='Account exists. Please sign in.';err.style.display='block';return}
-  const u={nm,em,pw:btoa(pw),plan:'pro',ud:0,udate:today()};
-  users[em]=u;localStorage.setItem('plutur_v2',JSON.stringify(users));
-  loginOK(u);
+  const btn=document.querySelector('#form-s .btn-gold');btn.textContent='Creating account...';btn.disabled=true;
+  try{
+    const data=await fetch(API_URL+'/api/auth/signup',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({name:nm,email:em,password:pw})
+    }).then(r=>r.json());
+    if(data.error){err.textContent=data.error;err.style.display='block';btn.textContent='Start for free →';btn.disabled=false;return}
+    TOKEN=data.session?.access_token;
+    loginOK({nm,em,plan:'free',ud:0,udate:today()});
+  }catch(e){err.textContent='Connection error. Try again.';err.style.display='block';btn.textContent='Start for free →';btn.disabled=false;}
 }
 function loginOK(u){
-  if(u.udate!==today()){u.ud=0;u.udate=today();saveU(u)}
-  CU=u;localStorage.setItem('plutur_sess_v2',u.em);
+  CU=u;
+  localStorage.setItem('plutur_sess_v3',JSON.stringify({em:u.em,nm:u.nm,token:TOKEN}));
   document.getElementById('auth-overlay').classList.add('hidden');
   document.getElementById('dash-name').textContent=u.nm.split(' ')[0]+'.';
-  updateUI();toast(`Welcome back, ${u.nm.split(' ')[0]}.`);
+  updateUI();toast(`Welcome, ${u.nm.split(' ')[0]}.`);
   fetchLiveRate();
 }
-function doLogout(){CU=null;localStorage.removeItem('plutur_sess_v2');document.getElementById('auth-overlay').classList.remove('hidden')}
-function saveU(u){const users=JSON.parse(localStorage.getItem('plutur_v2')||'{}');users[u.em]=u;localStorage.setItem('plutur_v2',JSON.stringify(users))}
+function doLogout(){
+  CU=null;TOKEN=null;
+  localStorage.removeItem('plutur_sess_v3');
+  document.getElementById('auth-overlay').classList.remove('hidden');
+}
 function updateUI(){
   if(!CU)return;
   const pro=CU.plan==='pro';
@@ -1848,11 +1870,46 @@ function checkUsage(){
   if(CU.plan==='pro')return true;
   const used=CU.udate===today()?CU.ud:0;
   if(used>=3){openPW();toast('Daily limit reached. Upgrade for unlimited.');return false}
-  CU.ud=used+1;CU.udate=today();saveU(CU);updateUsage();return true;
+  CU.ud=used+1;CU.udate=today();
+  const sess=JSON.parse(localStorage.getItem('plutur_sess_v3')||'{}');
+  localStorage.setItem('plutur_sess_v3',JSON.stringify({...sess,...CU}));
+  updateUsage();return true;
 }
-window.addEventListener('DOMContentLoaded',()=>{
-  const s=localStorage.getItem('plutur_sess_v2');
-  if(s){const u=JSON.parse(localStorage.getItem('plutur_v2')||'{}')[s];if(u)loginOK(u);}
+window.addEventListener('DOMContentLoaded',async()=>{
+  // Check for Stripe success redirect
+  const params=new URLSearchParams(window.location.search);
+  if(params.get('success')==='true'){
+    // Clean URL
+    window.history.replaceState({},'',window.location.pathname);
+    // Wait briefly for webhook to process, then refresh profile
+    setTimeout(async()=>{
+      if(TOKEN){
+        try{
+          const prof=await fetch(API_URL+'/api/auth/profile',{headers:{'Authorization':'Bearer '+TOKEN}}).then(r=>r.json());
+          if(prof.plan==='pro'&&CU){
+            CU.plan='pro';updateUI();
+            toast('Welcome to Plutur Pro! All features unlocked.');
+          }
+        }catch(e){}
+      }
+    },2000);
+  }
+  // Restore session
+  const sess=localStorage.getItem('plutur_sess_v3');
+  if(sess){
+    try{
+      const s=JSON.parse(sess);
+      if(s.token){
+        TOKEN=s.token;
+        const prof=await fetch(API_URL+'/api/auth/profile',{headers:{'Authorization':'Bearer '+TOKEN}}).then(r=>r.json());
+        if(prof.id){
+          loginOK({nm:prof.name||s.nm,em:prof.email||s.em,plan:prof.plan||'free',ud:prof.analyses_today||0,udate:prof.analyses_date||today()});
+          return;
+        }
+      }
+    }catch(e){}
+    localStorage.removeItem('plutur_sess_v3');
+  }
 });
 
 // ── PAYWALL ─────────────────────────────────────
@@ -1862,18 +1919,26 @@ function selPlan(p,el){
   SP=p;
   document.querySelectorAll('.plan-card').forEach(c=>c.classList.remove('sel'));
   el.classList.add('sel');
-  document.getElementById('stripe-fields').classList.toggle('hidden',p==='free');
   document.getElementById('pw-cta').textContent=p==='free'?'Continue free →':'Subscribe — $29/mo →';
 }
 function fmtCard(i){let v=i.value.replace(/\D/g,'').substring(0,16);i.value=v.replace(/(.{4})/g,'$1 ').trim()}
-function handlePW(){
+async function handlePW(){
   if(SP==='free'){closePW();return}
-  const n=document.getElementById('cn').value.replace(/\s/g,''),e=document.getElementById('ce').value,c=document.getElementById('cv').value;
-  const err=document.getElementById('pay-err');err.style.display='none';
-  if(n.length<16||e.length<5||c.length<3){err.style.display='block';return}
-  if(USE_BACKEND&&TOKEN){fetch(API_URL+'/api/stripe/checkout',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+TOKEN}}).then(r=>r.json()).then(d=>{if(d.url)window.location.href=d.url});return}
-  CU.plan='pro';saveU(CU);closePW();updateUI();
-  toast('Welcome to Plutur Pro.');
+  if(!TOKEN){toast('Please sign in first.');return}
+  const btn=document.getElementById('pw-cta');
+  btn.textContent='Redirecting to Stripe...';btn.disabled=true;
+  try{
+    const res=await fetch(API_URL+'/api/stripe/checkout',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+TOKEN}
+    });
+    const data=await res.json();
+    if(data.url){window.location.href=data.url;}
+    else{toast('Could not start checkout. Try again.');btn.textContent='Subscribe — $29/mo →';btn.disabled=false;}
+  }catch(e){
+    toast('Connection error. Try again.');
+    btn.textContent='Subscribe — $29/mo →';btn.disabled=false;
+  }
 }
 
 // ── NAVIGATION ───────────────────────────────────
@@ -2464,4 +2529,3 @@ function prefillAnalyzer(type) {
 </script>
 </body>
 </html>
-
