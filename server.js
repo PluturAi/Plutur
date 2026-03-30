@@ -17,7 +17,10 @@ const mailer = nodemailer.createTransport({
   auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
 });
 
-app.use(cors({ origin: process.env.FRONTEND_URL || '*' }));
+app.use(cors({
+  origin: ['https://plutur.com', 'https://www.plutur.com', 'http://localhost:3000', 'http://localhost:5500'],
+  credentials: true
+}));
 app.use('/api/stripe/webhook', express.raw({ type: 'application/json' }));
 app.use(express.json());
 
