@@ -296,6 +296,7 @@ footer{padding:48px;border-top:1px solid var(--line);display:flex;align-items:ce
       <div class="field"><label>Full name</label><input type="text" id="s-nm" placeholder="Jane Smith" autocomplete="name"></div>
       <div class="field"><label>Email</label><input type="email" id="s-em" placeholder="you@email.com" autocomplete="email"></div>
       <div class="field"><label>Password</label><input type="password" id="s-pw" placeholder="Minimum 6 characters" autocomplete="new-password" onkeydown="if(event.key==='Enter')doSignup()"></div>
+      <div class="field"><label>Referral code <span style="color:rgba(255,255,255,.2);font-size:8px;letter-spacing:.5px">(optional)</span></label><input type="text" id="s-ref" placeholder="e.g. MASON247" style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase()"></div>
       <div class="err" id="s-err">Please complete all fields.</div>
       <button class="btn btn-gold btn-full" onclick="doSignup()">Start for free →</button>
       <button class="lnk" onclick="authTab('l')">Already have an account?</button>
@@ -675,6 +676,8 @@ async function doSignup(){
   const nm=document.getElementById('s-nm').value.trim();
   const em=document.getElementById('s-em').value.trim();
   const pw=document.getElementById('s-pw').value;
+  const refField=document.getElementById('s-ref');
+  const ref=(refField?.value||'').trim().toUpperCase()||localStorage.getItem('plutur_ref')||null;
   const err=document.getElementById('s-err'); err.style.display='none';
   if(!nm||!em||pw.length<6){
     err.textContent=(!nm||!em)?'Please complete all fields.':'Password must be 6+ characters.';
@@ -682,7 +685,6 @@ async function doSignup(){
   }
   const btn=document.querySelector('#form-s .btn-gold');
   btn.textContent='Creating account...';btn.disabled=true;
-  const ref = localStorage.getItem('plutur_ref') || null;
   try{
     const API_URL='https://web-production-5b588.up.railway.app';
     const data=await fetch(API_URL+'/api/auth/signup',{
@@ -690,7 +692,6 @@ async function doSignup(){
       body:JSON.stringify({name:nm,email:em,password:pw,ref})
     }).then(r=>r.json());
     if(data.error){err.textContent=data.error;err.style.display='block';btn.textContent='Start for free →';btn.disabled=false;return}
-    // Save session token
     if(data.session?.access_token){
       localStorage.setItem('plutur_sess_v3',JSON.stringify({em,nm,token:data.session.access_token}));
     }
@@ -739,10 +740,17 @@ window.addEventListener('DOMContentLoaded',()=>{
       }
     }catch(e){}
   }
-  // Track affiliate from URL
+  // Track affiliate from URL and auto-fill field
   const params=new URLSearchParams(window.location.search);
   const ref=params.get('ref')||params.get('aff')||params.get('via');
-  if(ref){localStorage.setItem('plutur_ref',ref);localStorage.setItem('plutur_ref_date',Date.now());}
+  if(ref){
+    localStorage.setItem('plutur_ref',ref);
+    localStorage.setItem('plutur_ref_date',Date.now());
+    // Auto-fill the referral code field and open signup
+    const refInput=document.getElementById('s-ref');
+    if(refInput) refInput.value=ref.toUpperCase();
+    openAuth('s');
+  }
 });
 </script>
 </body>
