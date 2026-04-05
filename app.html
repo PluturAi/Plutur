@@ -2123,6 +2123,8 @@ async function cancelSubscription(){
     toast('Connection error. Try again or contact support.');
   }
 }
+
+async function doReset(){
   const em=document.getElementById('r-em').value.trim();
   const err=document.getElementById('r-err');
   const succ=document.getElementById('r-success');
