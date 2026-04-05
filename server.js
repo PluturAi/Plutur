@@ -545,6 +545,9 @@ app.post('/api/admin/create-user', requireAdmin, async (req, res) => {
     res.status(500).json({ error: e.message });
   }
 });
+
+// Mark payout as paid
+app.post('/api/admin/payout/approve', requireAdmin, async (req, res) => {
   const { payoutId } = req.body;
   if (!payoutId) return res.status(400).json({ error: 'payoutId required' });
   await supabase.from('payout_requests').update({ status: 'paid', processed_at: new Date().toISOString() }).eq('id', payoutId);
