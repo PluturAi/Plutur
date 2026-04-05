@@ -5,7 +5,6 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const { createClient } = require('@supabase/supabase-js');
 const nodemailer = require('nodemailer');
 const fetch = (...args) => import('node-fetch').then(({default: f}) => f(...args));
-const Anthropic = require('@anthropic-ai/sdk');
 const crypto = require('crypto');
 
 const app = express();
@@ -14,8 +13,9 @@ const PORT = process.env.PORT || 3001;
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
 
 const mailer = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: 587,
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true,
   auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
 });
 
@@ -690,17 +690,29 @@ app.post('/api/ai/chat', requireAuth, requirePro, async (req, res) => {
     return res.status(400).json({ error: 'Messages array required' });
   }
   if (!process.env.ANTHROPIC_API_KEY) {
-    return res.status(503).json({ error: 'AI Advisor not configured. Add ANTHROPIC_API_KEY to Railway.' });
+    return res.status(503).json({ error: 'AI Advisor not configured.' });
   }
   try {
-    const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-    const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 1024,
-      system: AI_SYSTEM,
-      messages: messages.slice(-10), // last 10 messages to stay within context
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': process.env.ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model: 'claude-opus-4-5',
+        max_tokens: 1024,
+        system: AI_SYSTEM,
+        messages: messages.slice(-10),
+      }),
     });
-    const reply = response.content?.[0]?.text || 'Something went wrong.';
+    const data = await response.json();
+    if (data.error) {
+      console.error('Anthropic error:', data.error);
+      return res.status(500).json({ error: 'AI Advisor temporarily unavailable.' });
+    }
+    const reply = data.content?.[0]?.text || 'Something went wrong.';
     res.json({ reply });
   } catch (err) {
     console.error('AI chat error:', err.message);
