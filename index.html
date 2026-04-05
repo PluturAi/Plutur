@@ -4,7 +4,43 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Plutur — Real Estate Investment Intelligence</title>
-<meta name="description" content="ML-powered deal scoring, live market data for 30+ U.S. markets, and an AI investment advisor. Built for serious real estate investors.">
+<meta name="description" content="ML-powered deal scoring, live market data for 30+ U.S. markets, and an AI investment advisor. Analyze SFR, multi-family, Airbnb STR, and commercial deals in seconds.">
+<meta name="keywords" content="real estate investment analyzer, deal analyzer, cap rate calculator, cash flow calculator, Airbnb STR analyzer, rental property calculator, ML deal scoring">
+<meta name="author" content="Plutur">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://plutur.com">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://plutur.com">
+<meta property="og:title" content="Plutur — Real Estate Investment Intelligence">
+<meta property="og:description" content="ML-powered deal scoring, live market data for 30+ U.S. markets, and an AI investment advisor. Built for serious real estate investors.">
+<meta property="og:image" content="https://plutur.com/og-image.png">
+<meta property="og:site_name" content="Plutur">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:url" content="https://plutur.com">
+<meta name="twitter:title" content="Plutur — Real Estate Investment Intelligence">
+<meta name="twitter:description" content="ML-powered deal scoring, live market data for 30+ U.S. markets, and an AI investment advisor.">
+<meta name="twitter:image" content="https://plutur.com/og-image.png">
+
+<!-- Schema.org -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Plutur",
+  "url": "https://plutur.com",
+  "description": "ML-powered real estate investment analyzer with live market data, deal scoring, and AI advisor.",
+  "applicationCategory": "FinanceApplication",
+  "operatingSystem": "Web",
+  "offers": [
+    {"@type": "Offer", "price": "0", "priceCurrency": "USD", "name": "Free"},
+    {"@type": "Offer", "price": "29", "priceCurrency": "USD", "name": "Pro", "billingIncrement": "month"}
+  ]
+}
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -635,20 +671,7 @@ function authTab(t){
   document.getElementById('form-s').classList.toggle(HIDDEN,t!=='s');
 }
 
-function doLogin(){
-  const em=document.getElementById('l-em').value.trim();
-  const pw=document.getElementById('l-pw').value;
-  const err=document.getElementById('l-err'); err.style.display='none';
-  if(!em||!pw){err.textContent='Please fill in all fields.';err.style.display='block';return}
-  const users=JSON.parse(localStorage.getItem('plutur_v2')||'{}');
-  if(!users[em]||users[em].pw!==btoa(pw)){err.style.display='block';return}
-  // Save session and redirect to app
-  localStorage.setItem('plutur_sess_v2',em);
-  toast('Signing you in...');
-  setTimeout(()=>{ window.location.href='app.html'; },800);
-}
-
-function doSignup(){
+async function doSignup(){
   const nm=document.getElementById('s-nm').value.trim();
   const em=document.getElementById('s-em').value.trim();
   const pw=document.getElementById('s-pw').value;
@@ -657,25 +680,69 @@ function doSignup(){
     err.textContent=(!nm||!em)?'Please complete all fields.':'Password must be 6+ characters.';
     err.style.display='block';return;
   }
-  const users=JSON.parse(localStorage.getItem('plutur_v2')||'{}');
-  if(users[em]){err.textContent='Account exists. Please sign in.';err.style.display='block';return}
-  const u={nm,em,pw:btoa(pw),plan:'pro',ud:0,udate:new Date().toDateString()};
-  users[em]=u;
-  localStorage.setItem('plutur_v2',JSON.stringify(users));
-  localStorage.setItem('plutur_sess_v2',em);
-  toast('Account created. Loading your platform...');
-  setTimeout(()=>{ window.location.href='app.html'; },900);
+  const btn=document.querySelector('#form-s .btn-gold');
+  btn.textContent='Creating account...';btn.disabled=true;
+  const ref = localStorage.getItem('plutur_ref') || null;
+  try{
+    const API_URL='https://web-production-5b588.up.railway.app';
+    const data=await fetch(API_URL+'/api/auth/signup',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({name:nm,email:em,password:pw,ref})
+    }).then(r=>r.json());
+    if(data.error){err.textContent=data.error;err.style.display='block';btn.textContent='Start for free →';btn.disabled=false;return}
+    // Save session token
+    if(data.session?.access_token){
+      localStorage.setItem('plutur_sess_v3',JSON.stringify({em,nm,token:data.session.access_token}));
+    }
+    toast('Account created. Loading your platform...');
+    setTimeout(()=>{ window.location.href='app.html'; },900);
+  }catch(e){
+    err.textContent='Connection error. Try again.';err.style.display='block';
+    btn.textContent='Start for free →';btn.disabled=false;
+  }
+}
+
+async function doLogin(){
+  const em=document.getElementById('l-em').value.trim();
+  const pw=document.getElementById('l-pw').value;
+  const err=document.getElementById('l-err');err.style.display='none';
+  if(!em||!pw){err.textContent='Please fill in all fields.';err.style.display='block';return}
+  const btn=document.querySelector('#form-l .btn-gold');
+  btn.textContent='Signing in...';btn.disabled=true;
+  try{
+    const SUPABASE_URL='https://riiuflqejvzntqnwxgjh.supabase.co';
+    const SUPABASE_ANON='sb_publishable_JoTp60Q5Dsk3v-xSEWstPw_WcDqAA7_';
+    const data=await fetch(SUPABASE_URL+'/auth/v1/token?grant_type=password',{
+      method:'POST',headers:{'apikey':SUPABASE_ANON,'Content-Type':'application/json'},
+      body:JSON.stringify({email:em,password:pw})
+    }).then(r=>r.json());
+    if(data.error||!data.access_token){err.textContent='Incorrect email or password.';err.style.display='block';btn.textContent='Sign in →';btn.disabled=false;return}
+    localStorage.setItem('plutur_sess_v3',JSON.stringify({em,token:data.access_token}));
+    toast('Signing you in...');
+    setTimeout(()=>{ window.location.href='app.html'; },800);
+  }catch(e){
+    err.textContent='Connection error. Try again.';err.style.display='block';
+    btn.textContent='Sign in →';btn.disabled=false;
+  }
 }
 
 // Auto-redirect if already logged in
 window.addEventListener('DOMContentLoaded',()=>{
-  const sess=localStorage.getItem('plutur_sess_v2');
-  const users=JSON.parse(localStorage.getItem('plutur_v2')||'{}');
-  if(sess && users[sess]){
-    // Show "Continue to app" in nav instead of sign in
-    const ctas=document.querySelector('.nav-ctas');
-    ctas.innerHTML=`<span style="font-family:var(--mono);font-size:10px;color:var(--t3);letter-spacing:.5px">Signed in as ${users[sess].nm.split(' ')[0]}</span><a href="app.html" class="btn btn-gold btn-sm">Open Plutur →</a>`;
+  const sess=localStorage.getItem('plutur_sess_v3');
+  if(sess){
+    try{
+      const s=JSON.parse(sess);
+      if(s.token){
+        const ctas=document.querySelector('.nav-ctas');
+        const name=s.nm?s.nm.split(' ')[0]:'there';
+        ctas.innerHTML=`<span style="font-family:var(--mono);font-size:10px;color:var(--t3);letter-spacing:.5px">Hi, ${name}</span><a href="app.html" class="btn btn-gold btn-sm">Open Plutur →</a>`;
+      }
+    }catch(e){}
   }
+  // Track affiliate from URL
+  const params=new URLSearchParams(window.location.search);
+  const ref=params.get('ref')||params.get('aff')||params.get('via');
+  if(ref){localStorage.setItem('plutur_ref',ref);localStorage.setItem('plutur_ref_date',Date.now());}
 });
 </script>
 </body>
