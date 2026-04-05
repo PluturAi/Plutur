@@ -1171,6 +1171,7 @@ hr.div { border: none; border-top: 1px solid var(--line); margin: 20px 0; }
       <div class="field"><label>Full name</label><input type="text" id="s-nm" placeholder="Jane Smith" autocomplete="name"></div>
       <div class="field"><label>Email</label><input type="email" id="s-em" placeholder="you@email.com" autocomplete="email"></div>
       <div class="field"><label>Password</label><input type="password" id="s-pw" placeholder="Minimum 6 characters" autocomplete="new-password" onkeydown="if(event.key==='Enter')doSignup()"></div>
+      <div class="field"><label>Referral code <span style="color:var(--t4);font-size:8px;letter-spacing:.5px">(optional)</span></label><input type="text" id="s-ref" placeholder="e.g. MASON247" style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase()"></div>
       <div class="err" id="s-err">Please complete all fields.</div>
       <button class="btn btn-gold btn-full" id="signup-btn" onclick="doSignup()">Create account →</button>
       <button class="link-text" onclick="authTab('l')">Already have an account?</button>
@@ -1876,9 +1877,21 @@ hr.div { border: none; border-top: 1px solid var(--line); margin: 20px 0; }
                 <button class="btn btn-outline btn-sm" onclick="copyRefLink()">Copy</button>
               </div>
             </div>
-            <div style="text-align:center;background:var(--surface3);border:1px solid var(--line2);border-radius:var(--r2);padding:16px 24px">
+            <div style="text-align:center;background:var(--surface3);border:1px solid var(--line2);border-radius:var(--r2);padding:16px 24px;min-width:140px">
               <div style="font-family:var(--mono);font-size:8px;color:var(--t3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">Your code</div>
-              <div style="font-family:var(--serif);font-size:28px;font-style:italic;color:var(--gold2)" id="ref-code-display">—</div>
+              <div id="ref-code-show">
+                <div style="font-family:var(--serif);font-size:28px;font-style:italic;color:var(--gold2)" id="ref-code-display">—</div>
+                <button class="btn btn-ghost btn-sm" onclick="startEditCode()" style="margin-top:8px;font-size:9px;padding:4px 10px">Edit code</button>
+              </div>
+              <div id="ref-code-edit" style="display:none">
+                <input type="text" id="ref-code-input" maxlength="12" placeholder="e.g. MASON"
+                  style="width:100%;background:var(--surface2);border:1px solid var(--line3);border-radius:var(--r);color:var(--gold2);font-family:var(--mono);font-size:14px;padding:6px 10px;outline:none;text-align:center;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">
+                <div style="display:flex;gap:6px;justify-content:center">
+                  <button class="btn btn-gold btn-sm" onclick="saveRefCode()" style="font-size:9px;padding:5px 12px">Save</button>
+                  <button class="btn btn-ghost btn-sm" onclick="cancelEditCode()" style="font-size:9px;padding:5px 10px">✕</button>
+                </div>
+                <div style="font-family:var(--mono);font-size:8px;color:var(--t3);margin-top:6px">Letters & numbers only</div>
+              </div>
             </div>
           </div>
         </div>
@@ -2091,13 +2104,15 @@ async function doLogin(){
 }
 async function doSignup(){
   const nm=document.getElementById('s-nm').value.trim(),em=document.getElementById('s-em').value.trim(),pw=document.getElementById('s-pw').value;
+  const refField=document.getElementById('s-ref');
+  const ref=(refField?.value||'').trim().toUpperCase()||localStorage.getItem('plutur_ref')||null;
   const err=document.getElementById('s-err');err.style.display='none';
   if(!nm||!em||pw.length<6){err.textContent=(!nm||!em)?'Please complete all fields.':'Password must be 6+ characters.';err.style.display='block';return}
   const btn=document.querySelector('#form-s .btn-gold');btn.textContent='Creating account...';btn.disabled=true;
   try{
     const data=await fetch(API_URL+'/api/auth/signup',{
       method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({name:nm,email:em,password:pw})
+      body:JSON.stringify({name:nm,email:em,password:pw,ref})
     }).then(r=>r.json());
     if(data.error){err.textContent=data.error;err.style.display='block';btn.textContent='Start for free →';btn.disabled=false;return}
     TOKEN=data.session?.access_token;
@@ -2576,13 +2591,46 @@ async function loadReferralDashboard() {
 function copyRefLink() {
   const link = document.getElementById('ref-link-display').textContent;
   navigator.clipboard.writeText(link).then(()=>toast('Referral link copied!')).catch(()=>{
-    // Fallback
     const el = document.createElement('textarea');
     el.value = link; document.body.appendChild(el);
     el.select(); document.execCommand('copy');
     document.body.removeChild(el);
     toast('Referral link copied!');
   });
+}
+
+function startEditCode() {
+  const current = document.getElementById('ref-code-display').textContent;
+  document.getElementById('ref-code-input').value = current;
+  document.getElementById('ref-code-show').style.display = 'none';
+  document.getElementById('ref-code-edit').style.display = 'block';
+  document.getElementById('ref-code-input').focus();
+}
+
+function cancelEditCode() {
+  document.getElementById('ref-code-show').style.display = 'block';
+  document.getElementById('ref-code-edit').style.display = 'none';
+}
+
+async function saveRefCode() {
+  const newCode = document.getElementById('ref-code-input').value.toUpperCase().replace(/[^A-Z0-9]/g,'').trim();
+  if (!newCode || newCode.length < 3) { toast('Code must be at least 3 characters.'); return; }
+  if (!TOKEN) { toast('Please sign in first.'); return; }
+  try {
+    const res = await fetch(API_URL+'/api/referral/update-code', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','Authorization':'Bearer '+TOKEN},
+      body: JSON.stringify({ code: newCode })
+    });
+    const data = await res.json();
+    if (data.error) { toast(data.error); return; }
+    document.getElementById('ref-code-display').textContent = newCode;
+    document.getElementById('ref-link-display').textContent = `https://plutur.com?ref=${newCode}`;
+    cancelEditCode();
+    toast('Referral code updated!');
+  } catch(e) {
+    toast('Error updating code. Try again.');
+  }
 }
 
 async function requestPayout() {
