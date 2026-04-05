@@ -990,7 +990,110 @@ hr.div { border: none; border-top: 1px solid var(--line); margin: 20px 0; }
 .toast.show { transform: none; opacity: 1; }
 .toast-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--gold); flex-shrink: 0; }
 
-/* ── MARKET BANNER ── */
+/* ── MOBILE ── */
+.mobile-menu-btn { display:none; background:none; border:none; color:var(--t2); cursor:pointer; font-size:20px; padding:6px 8px; line-height:1; }
+.mobile-bottom-nav { display:none; }
+.mbn-item { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; padding:8px 4px; border:none; background:none; cursor:pointer; color:var(--t3); transition:color .15s; font-family:var(--mono); font-size:7px; letter-spacing:.5px; text-transform:uppercase; }
+.mbn-item.active { color:var(--gold); }
+.mbn-icon { font-size:16px; line-height:1; }
+
+@media(max-width:768px){
+  /* Sidebar drawer */
+  .sb { position:fixed; left:0; top:0; bottom:0; z-index:200; transform:translateX(-100%); transition:transform .28s cubic-bezier(.4,0,.2,1); width:260px !important; box-shadow:none; }
+  .sb.mobile-open { transform:translateX(0); box-shadow:8px 0 32px rgba(0,0,0,.6); }
+  .sb .nav-label { opacity:1 !important; }
+  .sb .nav-group-label { opacity:1 !important; }
+  .sb .sb-logo-text { opacity:1 !important; }
+  .sb .user-info { opacity:1 !important; }
+  .sb .nav-pip { opacity:1 !important; }
+
+  /* Overlay */
+  .mobile-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:199; backdrop-filter:blur(2px); }
+  .mobile-overlay.on { display:block; }
+
+  /* Show hamburger, show bottom nav */
+  .mobile-menu-btn { display:flex !important; align-items:center; }
+  .mobile-bottom-nav { display:flex !important; position:fixed; bottom:0; left:0; right:0; background:var(--surface); border-top:1px solid var(--line); z-index:150; padding-bottom:env(safe-area-inset-bottom,0); }
+
+  /* Layout */
+  .main { margin-left:0 !important; }
+  .content { padding:14px !important; padding-bottom:76px !important; }
+
+  /* Topbar */
+  .topbar { padding:0 14px !important; height:52px; }
+  .tb-section { display:none; }
+  .tb-stat { display:none !important; }
+  .tb-divider { display:none !important; }
+  .tb-live { display:none; }
+  .tb-title { font-size:17px !important; }
+  .upgrade-chip { font-size:8px !important; padding:4px 10px !important; }
+
+  /* Page headers */
+  .ph { padding:16px 0 14px !important; }
+  .ph-title { font-size:24px !important; line-height:1.15 !important; }
+  .ph-sub { font-size:10px !important; }
+
+  /* Grids */
+  .g2 { grid-template-columns:1fr !important; gap:10px !important; }
+  .g2f { grid-template-columns:1fr 1fr !important; }
+  .stat-strip { grid-template-columns:1fr 1fr !important; gap:8px !important; }
+  .metrics { grid-template-columns:1fr 1fr !important; gap:8px !important; }
+  .mkt-cells { grid-template-columns:1fr 1fr !important; }
+  .cmp-props { grid-template-columns:1fr !important; }
+
+  /* Cards */
+  .card { padding:14px !important; }
+  .stat-cell { padding:12px 14px !important; }
+  .stat-val { font-size:26px !important; }
+  .stat-delta { font-size:8px !important; }
+  .card-label { font-size:8px !important; }
+
+  /* Live banner */
+  .live-banner { flex-direction:column; align-items:flex-start !important; gap:10px !important; padding:12px 14px !important; }
+  .live-stats { gap:14px !important; flex-wrap:wrap; }
+  .live-stat-val { font-size:15px !important; }
+
+  /* Modals — slide up from bottom */
+  .overlay { align-items:flex-end; }
+  .modal { padding:26px 20px 32px !important; margin:0 !important; width:100% !important; border-radius:16px 16px 0 0 !important; max-height:90vh; overflow-y:auto; }
+  .modal-title { font-size:26px !important; }
+  .plan-row { grid-template-columns:1fr 1fr !important; gap:8px !important; }
+  .plan-price { font-size:26px !important; }
+  .plan-list { font-size:9px !important; }
+
+  /* Analyzers */
+  .az-split { flex-direction:column !important; }
+  .az-inputs { width:100% !important; border-right:none !important; border-bottom:1px solid var(--line) !important; }
+  .az-results-col { padding:14px !important; }
+
+  /* Chat */
+  .chat-shell { border-radius:var(--r2) !important; }
+  .chat-body { height:220px !important; }
+  .chat-chips { gap:4px !important; padding:10px 14px 0 !important; }
+  .chip { font-size:8px !important; padding:3px 9px !important; }
+  .msg { max-width:90% !important; }
+  .chat-foot { padding:10px 14px !important; }
+
+  /* Tables */
+  .tbl th, .tbl td { padding:8px 10px !important; font-size:9px !important; }
+
+  /* Action rows */
+  .act-row { flex-direction:column !important; }
+  .act-row .btn { width:100% !important; justify-content:center; }
+
+  /* Toast — full width bottom */
+  .toast { right:12px !important; left:12px !important; bottom:80px !important; justify-content:center; }
+
+  /* ML bars */
+  .ml-bar-lbl { font-size:8px !important; width:55px !important; }
+  .ml-number { font-size:40px !important; }
+
+  /* Referral */
+  .ref-how-grid { grid-template-columns:1fr 1fr !important; }
+
+  /* Buttons */
+  .btn-full { font-size:13px !important; }
+}
 .live-banner {
   display: flex; align-items: center; justify-content: space-between;
   gap: 20px; flex-wrap: wrap;
@@ -1017,30 +1120,70 @@ hr.div { border: none; border-top: 1px solid var(--line); margin: 20px 0; }
 </head>
 <body>
 
+<!-- MOBILE SIDEBAR OVERLAY -->
+<div class="mobile-overlay" id="mobile-overlay" onclick="closeMobileNav()"></div>
+
+<!-- MOBILE BOTTOM NAV -->
+<div class="mobile-bottom-nav" id="mobile-bottom-nav">
+  <button class="mbn-item active" id="mbn-dashboard" onclick="goTo('dashboard',null);setMBN('dashboard')">
+    <span class="mbn-icon">◈</span>Home
+  </button>
+  <button class="mbn-item" id="mbn-sfr" onclick="goTo('sfr',null);setMBN('sfr')">
+    <span class="mbn-icon">⌂</span>Analyze
+  </button>
+  <button class="mbn-item" id="mbn-market" onclick="goTo('market',null);setMBN('market')">
+    <span class="mbn-icon">◉</span>Markets
+  </button>
+  <button class="mbn-item" id="mbn-ai" onclick="goTo('ai',null);setMBN('ai')">
+    <span class="mbn-icon">◎</span>AI
+  </button>
+  <button class="mbn-item" id="mbn-more" onclick="openMobileNav()">
+    <span class="mbn-icon">≡</span>More
+  </button>
+</div>
+
+<!-- OFFLINE BANNER -->
+<div id="offline-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9998;background:#8a3a3a;color:#f5f0e8;font-family:var(--mono);font-size:10px;letter-spacing:.5px;padding:8px 20px;text-align:center">
+  ⚠ No internet connection — some features may be unavailable
+</div>
+
 <!-- AUTH OVERLAY -->
 <div class="overlay" id="auth-overlay">
   <div class="modal">
     <div class="modal-eyebrow">Plutur · Investment Platform</div>
-    <div class="modal-title">Welcome <em>back.</em></div>
-    <div class="modal-sub">Real estate intelligence for serious investors</div>
-    <div class="seg">
+    <div class="modal-title" id="auth-modal-title">Welcome <em>back.</em></div>
+    <div class="modal-sub" id="auth-modal-sub">Real estate intelligence for serious investors</div>
+    <div class="seg" id="auth-seg">
       <button class="seg-btn active" id="seg-l" onclick="authTab('l')">Sign in</button>
       <button class="seg-btn" id="seg-s" onclick="authTab('s')">Create account</button>
     </div>
     <div id="form-l">
       <div class="field"><label>Email</label><input type="email" id="l-em" placeholder="you@email.com" autocomplete="email"></div>
-      <div class="field"><label>Password</label><input type="password" id="l-pw" placeholder="••••••••" autocomplete="current-password"></div>
+      <div class="field"><label>Password</label><input type="password" id="l-pw" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
       <div class="err" id="l-err">Incorrect email or password.</div>
-      <button class="btn btn-gold btn-full" onclick="doLogin()">Sign in →</button>
-      <button class="link-text" onclick="authTab('s')">No account? Create one free</button>
+      <button class="btn btn-gold btn-full" id="login-btn" onclick="doLogin()">Sign in →</button>
+      <div style="display:flex;justify-content:space-between;margin-top:10px">
+        <button class="link-text" style="margin:0" onclick="authTab('s')">No account? Sign up free</button>
+        <button class="link-text" style="margin:0" onclick="authTab('r')">Forgot password?</button>
+      </div>
     </div>
     <div id="form-s" class="hidden">
       <div class="field"><label>Full name</label><input type="text" id="s-nm" placeholder="Jane Smith" autocomplete="name"></div>
       <div class="field"><label>Email</label><input type="email" id="s-em" placeholder="you@email.com" autocomplete="email"></div>
-      <div class="field"><label>Password</label><input type="password" id="s-pw" placeholder="Minimum 6 characters" autocomplete="new-password"></div>
+      <div class="field"><label>Password</label><input type="password" id="s-pw" placeholder="Minimum 6 characters" autocomplete="new-password" onkeydown="if(event.key==='Enter')doSignup()"></div>
       <div class="err" id="s-err">Please complete all fields.</div>
-      <button class="btn btn-gold btn-full" onclick="doSignup()">Create account →</button>
+      <button class="btn btn-gold btn-full" id="signup-btn" onclick="doSignup()">Create account →</button>
       <button class="link-text" onclick="authTab('l')">Already have an account?</button>
+    </div>
+    <div id="form-r" class="hidden">
+      <div style="font-family:var(--mono);font-size:10px;color:var(--t2);margin-bottom:16px;line-height:1.7">Enter your email and we'll send you a link to reset your password.</div>
+      <div class="field"><label>Email</label><input type="email" id="r-em" placeholder="you@email.com" autocomplete="email" onkeydown="if(event.key==='Enter')doReset()"></div>
+      <div class="err" id="r-err">Please enter your email.</div>
+      <div id="r-success" style="display:none;font-family:var(--mono);font-size:10px;color:var(--green2);margin-bottom:12px;padding:10px;background:rgba(74,158,114,.1);border-radius:var(--r);border:1px solid rgba(74,158,114,.2)">
+        ✓ Reset email sent. Check your inbox.
+      </div>
+      <button class="btn btn-gold btn-full" id="reset-btn" onclick="doReset()">Send reset email →</button>
+      <button class="link-text" onclick="authTab('l')">← Back to sign in</button>
     </div>
   </div>
 </div>
@@ -1119,6 +1262,9 @@ hr.div { border: none; border-top: 1px solid var(--line); margin: 20px 0; }
       <button class="nav-item" onclick="goTo('neighborhood',this)">
         <div class="nav-icon">⊙</div><span class="nav-label">Neighborhood Intel</span><span class="nav-pip"></span>
       </button>
+      <button class="nav-item" onclick="goTo('referral',this)">
+        <div class="nav-icon">$</div><span class="nav-label">Earn · Referrals</span>
+      </button>
     </div>
     <div class="sb-foot">
       <div class="sb-user" onclick="openPW()">
@@ -1128,13 +1274,18 @@ hr.div { border: none; border-top: 1px solid var(--line); margin: 20px 0; }
           <div class="user-plan" id="sb-plan">Free</div>
         </div>
       </div>
-      <button class="btn btn-ghost btn-full btn-sm" style="margin-top:6px;letter-spacing:.5px" onclick="doLogout()">Sign out</button>
+      <div style="display:flex;gap:6px;margin-top:6px">
+        <button class="btn btn-ghost btn-full btn-sm" style="font-size:11px;flex:1" onclick="doLogout()">Sign out</button>
+        <button class="btn btn-outline btn-sm" id="cancel-sub-btn" onclick="cancelSubscription()" style="display:none;font-size:10px;color:var(--t3);padding:7px 10px" title="Cancel Pro subscription">Cancel Pro</button>
+      </div>
+      <button class="btn btn-gold btn-full btn-sm" id="upgrade-btn" onclick="openPW()" style="display:none;margin-top:6px;font-size:11px">⭐ Upgrade to Pro</button>
     </div>
   </nav>
 
   <!-- MAIN -->
   <div class="main">
     <div class="topbar">
+      <button class="mobile-menu-btn" onclick="openMobileNav()">☰</button>
       <div class="tb-path">
         <span class="tb-section">Plutur</span>
         <span style="color:var(--t4);font-size:12px">/</span>
@@ -1706,6 +1857,104 @@ hr.div { border: none; border-top: 1px solid var(--line); margin: 20px 0; }
         </div><!-- /nb-content -->
       </div><!-- /tab-neighborhood -->
 
+      <!-- REFERRAL DASHBOARD -->
+      <div class="panel" id="tab-referral">
+        <div class="ph">
+          <div class="ph-eyebrow">Earn · Affiliate Program</div>
+          <div class="ph-title">Refer investors, <em>earn monthly.</em></div>
+          <div class="ph-sub">Earn 20% ($5.80/mo) for every investor you refer who goes Pro — for as long as they stay subscribed.</div>
+        </div>
+
+        <!-- Referral code card -->
+        <div class="card" style="margin-bottom:14px">
+          <div class="card-label">Your referral link</div>
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            <div style="flex:1;min-width:200px">
+              <div style="font-family:var(--serif);font-size:13px;font-style:italic;color:var(--t2);margin-bottom:6px">Share this link — anyone who signs up and goes Pro earns you $5.80/mo</div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <div style="background:var(--surface3);border:1px solid var(--line2);border-radius:var(--r);padding:10px 14px;font-family:var(--mono);font-size:12px;color:var(--t1);flex:1;word-break:break-all" id="ref-link-display">Loading...</div>
+                <button class="btn btn-outline btn-sm" onclick="copyRefLink()">Copy</button>
+              </div>
+            </div>
+            <div style="text-align:center;background:var(--surface3);border:1px solid var(--line2);border-radius:var(--r2);padding:16px 24px">
+              <div style="font-family:var(--mono);font-size:8px;color:var(--t3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">Your code</div>
+              <div style="font-family:var(--serif);font-size:28px;font-style:italic;color:var(--gold2)" id="ref-code-display">—</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats strip -->
+        <div class="stat-strip" style="margin-bottom:14px" id="ref-stats-strip">
+          <div class="stat-cell"><div class="stat-lbl">Total referrals</div><div class="stat-val" id="ref-total">—</div><div class="stat-delta">All time</div></div>
+          <div class="stat-cell"><div class="stat-lbl">Active Pro users</div><div class="stat-val green" id="ref-active">—</div><div class="stat-delta up">Earning now</div></div>
+          <div class="stat-cell"><div class="stat-lbl">Monthly earning</div><div class="stat-val gold" id="ref-monthly">—</div><div class="stat-delta up">Recurring</div></div>
+          <div class="stat-cell"><div class="stat-lbl">Total earned</div><div class="stat-val" id="ref-total-earned">—</div><div class="stat-delta">All time</div></div>
+        </div>
+
+        <div class="g2" style="gap:14px;margin-bottom:14px">
+
+          <!-- Referrals table -->
+          <div class="card">
+            <div class="card-label">Your referrals</div>
+            <div id="ref-empty" class="empty" style="border:none;padding:28px 0"><div class="empty-icon">$</div>No referrals yet. Share your link to start earning.</div>
+            <table class="tbl hidden" id="ref-table">
+              <thead><tr><th>Name</th><th>Joined</th><th>Status</th><th>Earned</th></tr></thead>
+              <tbody id="ref-tbody"></tbody>
+            </table>
+          </div>
+
+          <!-- Payout request -->
+          <div class="card">
+            <div class="card-label">Request payout</div>
+            <div style="font-family:var(--mono);font-size:9px;color:var(--t3);line-height:1.8;margin-bottom:16px">Minimum $10. Paid within 48 hours via your chosen method. Commission: 20% ($5.80/mo per active Pro referral).</div>
+            <div class="field">
+              <label>Payout amount ($)</label>
+              <div class="inp-wrap"><span class="inp-pre">$</span><input type="number" id="payout-amount" placeholder="10.00" min="10" step="0.01"></div>
+            </div>
+            <div class="field">
+              <label>Payout method</label>
+              <select id="payout-method">
+                <option value="">— Select method —</option>
+                <option value="PayPal">PayPal</option>
+                <option value="Venmo">Venmo</option>
+                <option value="CashApp">Cash App</option>
+                <option value="Zelle">Zelle</option>
+                <option value="Bank Transfer">Bank Transfer</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Your PayPal/Venmo/etc. handle or email</label>
+              <input type="text" id="payout-details" placeholder="@yourhandle or you@email.com">
+            </div>
+            <div class="err" id="payout-err">Please fill all fields and minimum $10.</div>
+            <div id="payout-success" style="display:none;font-family:var(--mono);font-size:10px;color:var(--green2);padding:10px;background:rgba(74,158,114,.1);border-radius:var(--r);border:1px solid rgba(74,158,114,.2);margin-bottom:10px">✓ Payout request submitted. We'll process within 48 hours.</div>
+            <button class="btn btn-gold btn-full" onclick="requestPayout()">Request payout →</button>
+
+            <div style="margin-top:20px">
+              <div class="card-label">Payout history</div>
+              <div id="payout-history" style="font-family:var(--mono);font-size:10px;color:var(--t3)">No payouts yet.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- How it works -->
+        <div class="card" style="background:var(--gold-dim);border-color:var(--line3)">
+          <div class="card-label">How it works</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px">
+            ${[
+              ['1','Share your link','Send your unique referral link to real estate investors, colleagues, or your audience.'],
+              ['2','They sign up','When someone creates an account using your link, they\'re tagged as your referral.'],
+              ['3','They go Pro','When they upgrade to $29/mo Pro, you immediately earn $5.80 (20%).'],
+              ['4','Earn every month','As long as they stay Pro, you earn $5.80 every month automatically.'],
+            ].map(([n,t,d])=>`<div>
+              <div style="font-family:var(--serif);font-size:32px;font-style:italic;color:var(--gold);margin-bottom:6px">${n}</div>
+              <div style="font-family:var(--mono);font-size:10px;color:var(--t1);margin-bottom:4px;letter-spacing:.3px">${t}</div>
+              <div style="font-family:var(--mono);font-size:9px;color:var(--t3);line-height:1.7">${d}</div>
+            </div>`).join('')}
+          </div>
+        </div>
+      </div>
+
     </div><!-- /content -->
   </div><!-- /main -->
 </div><!-- /shell -->
@@ -1720,7 +1969,7 @@ let CU=null,TOKEN=null,LR={},CH=[],SP='free';
 let sessionCount=0,sessionComps=0,bestScore=null,bestCF=null;
 let lastMkt=null,lastArbMkt=null;
 let NB_DATA=null;
-const TITLES={dashboard:'Dashboard',market:'Market Data',history:'Deal History',sfr:'Single Family',mfr:'Multi-Family',airbnb:'Airbnb / STR',arbitrage:'Arbitrage',commercial:'Commercial',compare:'Compare',ai:'AI Advisor',neighborhood:'Neighborhood Intel'};
+const TITLES={dashboard:'Dashboard',market:'Market Data',history:'Deal History',sfr:'Single Family',mfr:'Multi-Family',airbnb:'Airbnb / STR',arbitrage:'Arbitrage',commercial:'Commercial',compare:'Compare',ai:'AI Advisor',neighborhood:'Neighborhood Intel',referral:'Earn · Referrals'};
 const SYS='You are Plutur AI, an expert real estate investment advisor at plutur.com. Specialize in SFR, multi-family, Airbnb STR, arbitrage, and commercial RE. Give clear, direct, actionable advice with specific numbers. Be concise and professional. Never give legal or tax advice.';
 
 // ── SUPABASE CLIENT ─────────────────────────────
@@ -1799,10 +2048,22 @@ function renderML(elId,sc){
 
 // ── AUTH ────────────────────────────────────────
 function authTab(t){
-  document.getElementById('seg-l').classList.toggle('active',t==='l');
-  document.getElementById('seg-s').classList.toggle('active',t==='s');
-  document.getElementById('form-l').classList.toggle('hidden',t!=='l');
-  document.getElementById('form-s').classList.toggle('hidden',t!=='s');
+  ['l','s','r'].forEach(x=>{
+    document.getElementById('seg-'+x)?.classList.toggle('active',x===t);
+    document.getElementById('form-'+x)?.classList.toggle('hidden',x!==t);
+  });
+  // Hide seg tabs on reset screen
+  document.getElementById('auth-seg').style.display = t==='r'?'none':'flex';
+  if(t==='r'){
+    document.getElementById('auth-modal-title').innerHTML='Reset <em>password.</em>';
+    document.getElementById('auth-modal-sub').textContent='We\'ll send you a secure link';
+  } else if(t==='s'){
+    document.getElementById('auth-modal-title').innerHTML='Create <em>account.</em>';
+    document.getElementById('auth-modal-sub').textContent='Start for free, no card required';
+  } else {
+    document.getElementById('auth-modal-title').innerHTML='Welcome <em>back.</em>';
+    document.getElementById('auth-modal-sub').textContent='Real estate intelligence for serious investors';
+  }
 }
 async function doLogin(){
   const em=document.getElementById('l-em').value.trim(),pw=document.getElementById('l-pw').value;
@@ -1846,6 +2107,60 @@ function doLogout(){
   localStorage.removeItem('plutur_sess_v3');
   document.getElementById('auth-overlay').classList.remove('hidden');
 }
+
+async function cancelSubscription(){
+  if(!confirm('Cancel your Pro subscription? You\'ll keep access until the end of your billing period.')) return;
+  if(!TOKEN){toast('Please sign in again to cancel.');return}
+  try{
+    const res=await fetch(API_URL+'/api/stripe/cancel',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+TOKEN}
+    });
+    const data=await res.json();
+    if(data.error){toast('Error: '+data.error);return}
+    toast('Subscription cancelled. Access continues until end of billing period.');
+  }catch(e){
+    toast('Connection error. Try again or contact support.');
+  }
+}
+  const em=document.getElementById('r-em').value.trim();
+  const err=document.getElementById('r-err');
+  const succ=document.getElementById('r-success');
+  err.style.display='none';succ.style.display='none';
+  if(!em){err.textContent='Please enter your email.';err.style.display='block';return}
+  const btn=document.getElementById('reset-btn');
+  btn.textContent='Sending...';btn.disabled=true;
+  try{
+    const res=await fetch(SUPABASE_URL+'/auth/v1/recover',{
+      method:'POST',
+      headers:{'apikey':SUPABASE_ANON,'Content-Type':'application/json'},
+      body:JSON.stringify({email:em})
+    });
+    succ.style.display='block';
+    btn.textContent='Send reset email →';btn.disabled=false;
+  }catch(e){
+    err.textContent='Error sending reset email. Try again.';
+    err.style.display='block';
+    btn.textContent='Send reset email →';btn.disabled=false;
+  }
+}
+
+// ── MOBILE NAV ──────────────────────────────────
+function openMobileNav(){
+  document.querySelector('.sb').classList.add('mobile-open');
+  document.getElementById('mobile-overlay').classList.add('on');
+}
+function closeMobileNav(){
+  document.querySelector('.sb').classList.remove('mobile-open');
+  document.getElementById('mobile-overlay').classList.remove('on');
+}
+function setMBN(id){
+  const map={dashboard:'dashboard',sfr:'sfr',mfr:'sfr',airbnb:'sfr',arbitrage:'sfr',commercial:'sfr',market:'market',history:'dashboard',compare:'dashboard',ai:'ai',neighborhood:'more',referral:'more'};
+  const active=map[id]||'more';
+  document.querySelectorAll('.mbn-item').forEach(b=>b.classList.remove('active'));
+  const btn=document.getElementById('mbn-'+active);
+  if(btn)btn.classList.add('active');
+}
 function updateUI(){
   if(!CU)return;
   const pro=CU.plan==='pro';
@@ -1853,6 +2168,7 @@ function updateUI(){
   document.getElementById('sb-nm').textContent=CU.nm;
   document.getElementById('sb-plan').textContent=pro?'Pro':'Free';
   document.getElementById('upgrade-btn').style.display=pro?'none':'block';
+  document.getElementById('cancel-sub-btn').style.display=pro?'block':'none';
   document.getElementById('usage-pill').style.display=pro?'none':'flex';
   ['mfr','str','arb','com','cmp','ai','mkt','nb'].forEach(k=>{
     const g=document.getElementById(k+'-gate'),c=document.getElementById(k+'-content');
@@ -1949,20 +2265,31 @@ function goTo(id,el){
   if(el)el.classList.add('active');
   document.getElementById('tb-title').textContent=TITLES[id]||id;
   if(id==='history')loadHistory();
+  if(id==='referral')loadReferralDashboard();
+  setMBN(id);
+  closeMobileNav();
 }
+
+// ── OFFLINE DETECTION ───────────────────────────
+window.addEventListener('online',()=>document.getElementById('offline-banner').style.display='none');
+window.addEventListener('offline',()=>document.getElementById('offline-banner').style.display='block');
 
 // ── LIVE RATE ─────────────────────────────────────
 async function fetchLiveRate(){
   try{
-    const r=await fetch('https://api.stlouisfed.org/fred/series/observations?series_id=MORTGAGE30US&api_key=demo&sort_order=desc&limit=1&file_type=json');
+    // Route through backend to avoid CORS
+    const r=await fetch(API_URL+'/api/market/rates');
     const d=await r.json();
-    const rate=parseFloat(d.observations?.[0]?.value);
-    if(!isNaN(rate)){
+    const rate=d.rate_30yr;
+    if(rate){
       const fmt=rate.toFixed(2)+'%';
-      document.getElementById('db-rate').textContent=fmt;
-      document.getElementById('db-rate2').textContent=fmt;
+      ['db-rate','db-rate2'].forEach(id=>{
+        const el=document.getElementById(id);if(el)el.textContent=fmt;
+      });
     }
-  }catch(e){}
+  }catch(e){
+    // Silently fail — default rate already shown
+  }
 }
 
 // ── MARKET DB ─────────────────────────────────────
@@ -2177,21 +2504,128 @@ function exportCmpPDF(){
   doc.save('Plutur_Comparison.pdf');toast('PDF downloaded.');
 }
 
-// ── AI CHAT ───────────────────────────────────────
+// ── REFERRAL SYSTEM ──────────────────────────────────────
+let REF_DATA = null;
+
+async function loadReferralDashboard() {
+  if(!CU || !TOKEN) return;
+  try {
+    // Get/create referral code
+    const codeRes = await fetch(API_URL+'/api/referral/code', {
+      headers: {'Authorization': 'Bearer '+TOKEN}
+    });
+    const codeData = await codeRes.json();
+    if(codeData.code) {
+      document.getElementById('ref-code-display').textContent = codeData.code;
+      document.getElementById('ref-link-display').textContent = codeData.url;
+      REF_DATA = codeData;
+    }
+
+    // Get stats
+    const statsRes = await fetch(API_URL+'/api/referral/stats', {
+      headers: {'Authorization': 'Bearer '+TOKEN}
+    });
+    const data = await statsRes.json();
+
+    // Update stat strip
+    const s = data.stats;
+    document.getElementById('ref-total').textContent = s.total;
+    document.getElementById('ref-active').textContent = s.active;
+    document.getElementById('ref-monthly').textContent = '$'+s.monthlyEarning.toFixed(2);
+    document.getElementById('ref-total-earned').textContent = '$'+s.totalEarned.toFixed(2);
+
+    // Referrals table
+    if(data.referrals && data.referrals.length > 0) {
+      document.getElementById('ref-empty').style.display = 'none';
+      document.getElementById('ref-table').classList.remove('hidden');
+      const statusColor = s => s==='active'?'var(--green2)':s==='churned'?'var(--red2)':'var(--amber)';
+      document.getElementById('ref-tbody').innerHTML = data.referrals.map(r => `
+        <tr>
+          <td>${r.referee?.name || '—'}</td>
+          <td>${new Date(r.created_at).toLocaleDateString()}</td>
+          <td style="color:${statusColor(r.status)}">${r.status}</td>
+          <td>$${(r.total_earned||0).toFixed(2)}</td>
+        </tr>`).join('');
+    }
+
+    // Payout history
+    if(data.payouts && data.payouts.length > 0) {
+      document.getElementById('payout-history').innerHTML = data.payouts.map(p => `
+        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line)">
+          <span style="color:var(--t2)">$${p.amount} via ${p.method}</span>
+          <span style="color:${p.status==='paid'?'var(--green2)':p.status==='pending'?'var(--amber)':'var(--red2)'}">${p.status}</span>
+        </div>`).join('');
+    }
+  } catch(e) {
+    console.error('Referral load error:', e);
+  }
+}
+
+function copyRefLink() {
+  const link = document.getElementById('ref-link-display').textContent;
+  navigator.clipboard.writeText(link).then(()=>toast('Referral link copied!')).catch(()=>{
+    // Fallback
+    const el = document.createElement('textarea');
+    el.value = link; document.body.appendChild(el);
+    el.select(); document.execCommand('copy');
+    document.body.removeChild(el);
+    toast('Referral link copied!');
+  });
+}
+
+async function requestPayout() {
+  const amount = parseFloat(document.getElementById('payout-amount').value);
+  const method = document.getElementById('payout-method').value;
+  const details = document.getElementById('payout-details').value.trim();
+  const err = document.getElementById('payout-err');
+  const succ = document.getElementById('payout-success');
+  err.style.display = 'none'; succ.style.display = 'none';
+
+  if(!amount || amount < 10 || !method || !details) {
+    err.style.display = 'block'; return;
+  }
+  if(!TOKEN) { toast('Please sign in first.'); return; }
+
+  const btn = document.querySelector('#tab-referral .btn-gold');
+  btn.textContent = 'Submitting...'; btn.disabled = true;
+
+  try {
+    const res = await fetch(API_URL+'/api/referral/payout', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','Authorization':'Bearer '+TOKEN},
+      body: JSON.stringify({amount, method, details})
+    });
+    const data = await res.json();
+    if(data.error) { err.textContent = data.error; err.style.display = 'block'; }
+    else { succ.style.display = 'block'; document.getElementById('payout-amount').value = ''; }
+  } catch(e) {
+    err.textContent = 'Connection error. Try again.'; err.style.display = 'block';
+  }
+  btn.textContent = 'Request payout →'; btn.disabled = false;
+}
 function askSug(el){document.getElementById('chat-in').value=el.textContent;sendChat()}
 async function sendChat(){
   if(!CU||CU.plan!=='pro'){openPW();return}
   const inp=document.getElementById('chat-in'),msg=inp.value.trim();if(!msg)return;inp.value='';
   const body=document.getElementById('chat-body');
   body.innerHTML+=`<div class="msg user"><div class="msg-from">You</div><div class="msg-bubble">${msg}</div></div>`;
-  const tid='t'+Date.now();body.innerHTML+=`<div class="msg ai" id="${tid}"><div class="msg-from">Plutur AI</div><div class="msg-bubble"><span class="typing"><span></span><span></span><span></span></span></div></div>`;
-  body.scrollTop=body.scrollHeight;CH.push({role:'user',content:msg});
+  const tid='t'+Date.now();
+  body.innerHTML+=`<div class="msg ai" id="${tid}"><div class="msg-from">Plutur AI</div><div class="msg-bubble"><span class="typing"><span></span><span></span><span></span></span></div></div>`;
+  body.scrollTop=body.scrollHeight;
+  CH.push({role:'user',content:msg});
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:SYS,messages:CH})});
-    const data=await res.json();const reply=data.content?.[0]?.text||'Something went wrong.';
+    const res=await fetch(API_URL+'/api/ai/chat',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+TOKEN},
+      body:JSON.stringify({messages:CH})
+    });
+    const data=await res.json();
+    const reply=data.reply||data.error||'Something went wrong.';
     CH.push({role:'assistant',content:reply});
     document.getElementById(tid).innerHTML=`<div class="msg-from">Plutur AI</div><div class="msg-bubble">${reply.replace(/\n/g,'<br>')}</div>`;
-  }catch(e){document.getElementById(tid).innerHTML=`<div class="msg-from">Plutur AI</div><div class="msg-bubble" style="color:var(--red2)">Connection error.</div>`;}
+  }catch(e){
+    document.getElementById(tid).innerHTML=`<div class="msg-from">Plutur AI</div><div class="msg-bubble" style="color:var(--red2)">Connection error. Please try again.</div>`;
+  }
   body.scrollTop=body.scrollHeight;
 }
 
@@ -2243,14 +2677,13 @@ async function lookupNeighborhood() {
       zipcode = nomData[0].address?.postcode || '';
     }
 
-    // ── Step 2: Walk Score (requires API key — shows mock if missing) ──
+    // ── Step 2: Walk Score via backend proxy (avoids CORS) ──
     let walkData = null;
-    if(window.WALK_SCORE_KEY) {
-      try {
-        const wsRes = await fetch(`https://api.walkscore.com/score?format=json&address=${encodeURIComponent(formattedAddr)}&lat=${lat}&lon=${lng}&transit=1&bike=1&wsapikey=${window.WALK_SCORE_KEY}`);
-        walkData = await wsRes.json();
-      } catch(e) {}
-    }
+    try {
+      const wsRes = await fetch(`${API_URL}/api/market/walkscore?address=${encodeURIComponent(formattedAddr)}&lat=${lat}&lng=${lng}`);
+      walkData = await wsRes.json();
+      if(!walkData.walkscore) walkData = null;
+    } catch(e) {}
 
     // ── Step 3: Pull our market DB for comps enrichment ──
     const mktKey = `${city.toLowerCase()},${state.toLowerCase()}`;
