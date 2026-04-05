@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plutur Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#111210;--surface:#181815;--surface2:#1e1e1a;--surface3:#242420;
+  --line:rgba(255,255,255,.06);--line2:rgba(255,255,255,.1);--line3:rgba(212,185,120,.2);
+  --gold:#c9a84c;--gold2:#e2c882;--gold-dim:rgba(201,168,76,.12);
+  --green:#4a9e72;--green2:#6abf8e;--red:#9e4a4a;--red2:#bf6a6a;--amber:#b89040;
+  --t1:#f5f0e8;--t2:#a09888;--t3:#605850;--t4:#302e28;
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --sans:'DM Sans',system-ui,sans-serif;
+  --mono:'DM Mono',monospace;
+  --r:4px;--r2:8px;--r3:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--t1);-webkit-font-smoothing:antialiased;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:9999}
+
+/* LOGIN */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.login-box{background:var(--surface);border:1px solid var(--line2);border-radius:var(--r3);padding:40px 44px;width:100%;max-width:380px}
+.login-logo{font-family:var(--serif);font-size:22px;font-style:italic;color:var(--gold);margin-bottom:4px}
+.login-sub{font-family:var(--mono);font-size:9px;color:var(--t3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:28px}
+.field{margin-bottom:14px}
+.field label{display:block;font-family:var(--mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3);margin-bottom:5px}
+.field input{width:100%;background:var(--surface3);border:1px solid var(--line2);border-radius:var(--r);color:var(--t1);font-family:var(--mono);font-size:12px;padding:9px 12px;outline:none;transition:all .15s}
+.field input:focus{border-color:rgba(201,168,76,.4);background:var(--surface4)}
+.err{font-family:var(--mono);font-size:10px;color:var(--red2);margin-top:6px;display:none}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 18px;border:none;border-radius:var(--r);font-family:var(--sans);font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;white-space:nowrap}
+.btn-gold{background:var(--gold);color:#0e0c08}.btn-gold:hover{background:var(--gold2)}
+.btn-ghost{background:transparent;color:var(--t2);border:1px solid var(--line2)}.btn-ghost:hover{border-color:var(--line3);color:var(--t1)}
+.btn-danger{background:rgba(158,74,74,.15);color:var(--red2);border:1px solid rgba(158,74,74,.2)}.btn-danger:hover{background:rgba(158,74,74,.25)}
+.btn-success{background:rgba(74,158,114,.15);color:var(--green2);border:1px solid rgba(74,158,114,.2)}.btn-success:hover{background:rgba(74,158,114,.25)}
+.btn-full{width:100%}
+.btn-sm{padding:5px 12px;font-size:11px}
+
+/* ADMIN SHELL */
+.admin-shell{display:none;flex-direction:column;min-height:100vh}
+.admin-shell.on{display:flex}
+
+/* HEADER */
+.admin-header{background:var(--surface);border-bottom:1px solid var(--line);padding:0 32px;height:56px;display:flex;align-items:center;gap:20px;flex-shrink:0;position:sticky;top:0;z-index:100}
+.admin-logo{font-family:var(--serif);font-size:18px;font-style:italic;color:var(--gold);display:flex;align-items:center;gap:10px}
+.admin-badge{font-family:var(--mono);font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--red2);background:rgba(158,74,74,.12);border:1px solid rgba(158,74,74,.2);padding:2px 8px;border-radius:3px}
+.admin-nav{display:flex;gap:4px;margin-left:24px}
+.an-btn{font-family:var(--mono);font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--t3);background:none;border:none;cursor:pointer;padding:6px 12px;border-radius:var(--r);transition:all .15s}
+.an-btn:hover{color:var(--t1);background:rgba(255,255,255,.04)}
+.an-btn.active{color:var(--gold);background:var(--gold-dim)}
+.admin-header-right{margin-left:auto;display:flex;align-items:center;gap:16px}
+.refresh-btn{font-family:var(--mono);font-size:9px;color:var(--t3);background:none;border:1px solid var(--line2);border-radius:var(--r);padding:5px 12px;cursor:pointer;transition:all .15s}
+.refresh-btn:hover{color:var(--t1);border-color:var(--line3)}
+.last-updated{font-family:var(--mono);font-size:9px;color:var(--t4)}
+
+/* CONTENT */
+.admin-content{flex:1;padding:28px 32px;max-width:1400px;width:100%;margin:0 auto}
+.admin-section{display:none}.admin-section.on{display:block}
+
+/* KPI STRIP */
+.kpi-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:24px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--r3);padding:20px 20px 16px;position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.kpi.gold::before{background:var(--gold)}
+.kpi.green::before{background:var(--green)}
+.kpi.blue::before{background:#4a7e9e}
+.kpi.amber::before{background:var(--amber)}
+.kpi.red::before{background:var(--red2)}
+.kpi.muted::before{background:var(--t4)}
+.kpi-label{font-family:var(--mono);font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3);margin-bottom:8px}
+.kpi-value{font-family:var(--serif);font-size:36px;font-style:italic;color:var(--t1);line-height:1;letter-spacing:-.5px}
+.kpi-sub{font-family:var(--mono);font-size:9px;color:var(--t3);margin-top:4px}
+
+/* TABLES */
+.table-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r3);overflow:hidden;margin-bottom:20px}
+.tc-head{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.tc-title{font-family:var(--mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3)}
+.tc-count{font-family:var(--mono);font-size:9px;color:var(--t4)}
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{padding:10px 16px;text-align:left;font-family:var(--mono);font-size:8px;color:var(--t3);text-transform:uppercase;letter-spacing:1.5px;border-bottom:1px solid var(--line2);background:rgba(255,255,255,.02)}
+.tbl td{padding:11px 16px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:10px;color:var(--t2)}
+.tbl tr:last-child td{border:none}
+.tbl tr:hover td{background:rgba(255,255,255,.02);color:var(--t1)}
+.tbl td:first-child{color:var(--t1)}
+.badge{font-family:var(--mono);font-size:8px;padding:2px 8px;border-radius:3px;letter-spacing:.5px}
+.badge.pro{background:rgba(201,168,76,.12);color:var(--gold);border:1px solid rgba(201,168,76,.2)}
+.badge.free{background:rgba(255,255,255,.04);color:var(--t3);border:1px solid var(--line2)}
+.badge.active{background:rgba(74,158,114,.12);color:var(--green2);border:1px solid rgba(74,158,114,.2)}
+.badge.pending{background:rgba(184,144,64,.12);color:var(--amber);border:1px solid rgba(184,144,64,.2)}
+
+/* SEARCH */
+.search-bar{display:flex;gap:10px;margin-bottom:14px}
+.search-bar input{flex:1;background:var(--surface3);border:1px solid var(--line2);border-radius:var(--r);color:var(--t1);font-family:var(--mono);font-size:11px;padding:8px 12px;outline:none}
+.search-bar input:focus{border-color:rgba(201,168,76,.4)}
+.search-bar input::placeholder{color:var(--t4)}
+
+/* CHART */
+.chart-wrap{background:var(--surface);border:1px solid var(--line);border-radius:var(--r3);padding:20px;margin-bottom:20px}
+.chart-title{font-family:var(--mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3);margin-bottom:16px}
+.bar-chart{display:flex;align-items:flex-end;gap:6px;height:80px}
+.bar-col{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1}
+.bar{width:100%;background:var(--gold-dim);border-radius:2px 2px 0 0;border:1px solid rgba(201,168,76,.2);transition:height .5s cubic-bezier(.4,0,.2,1);min-height:2px}
+.bar-lbl{font-family:var(--mono);font-size:7px;color:var(--t4)}
+.bar-val{font-family:var(--mono);font-size:7px;color:var(--t3)}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:28px;background:var(--surface3);border:1px solid var(--line2);color:var(--t1);border-radius:var(--r2);padding:10px 18px;font-family:var(--mono);font-size:10px;z-index:9999;transform:translateY(60px);opacity:0;transition:all .3s;display:flex;align-items:center;gap:9px;box-shadow:0 8px 32px rgba(0,0,0,.4)}
+.toast.show{transform:none;opacity:1}
+.toast-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);flex-shrink:0}
+
+/* LOADER */
+.loader{display:flex;align-items:center;justify-content:center;padding:60px;color:var(--t3);font-family:var(--mono);font-size:10px;gap:12px}
+.spin{width:16px;height:16px;border:1.5px solid var(--line2);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media(max-width:900px){
+  .kpi-strip{grid-template-columns:1fr 1fr 1fr}
+  .admin-content{padding:16px}
+  .admin-header{padding:0 16px}
+  .admin-nav{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"><div class="toast-dot"></div><span id="toast-msg"></span></div>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">Plutur</div>
+    <div class="login-sub">Admin Dashboard</div>
+    <div class="field">
+      <label>Admin password</label>
+      <input type="password" id="admin-pw" placeholder="••••••••" onkeydown="if(event.key==='Enter')doAdminLogin()">
+    </div>
+    <div class="err" id="login-err">Incorrect password.</div>
+    <button class="btn btn-gold btn-full" onclick="doAdminLogin()">Access dashboard →</button>
+  </div>
+</div>
+
+<!-- ADMIN SHELL -->
+<div class="admin-shell" id="admin-shell">
+
+  <div class="admin-header">
+    <div class="admin-logo">
+      Plutur
+      <span class="admin-badge">Admin</span>
+    </div>
+    <nav class="admin-nav">
+      <button class="an-btn active" id="nav-overview" onclick="showSection('overview')">Overview</button>
+      <button class="an-btn" id="nav-users" onclick="showSection('users')">Users</button>
+      <button class="an-btn" id="nav-revenue" onclick="showSection('revenue')">Revenue</button>
+      <button class="an-btn" id="nav-referrals" onclick="showSection('referrals')">Referrals</button>
+      <button class="an-btn" id="nav-payouts" onclick="showSection('payouts')">Payouts</button>
+      <button class="an-btn" id="nav-create" onclick="showSection('create')" style="color:var(--green2)">+ Create user</button>
+    </nav>
+    <div class="admin-header-right">
+      <span class="last-updated" id="last-updated">—</span>
+      <button class="refresh-btn" onclick="loadData()">↻ Refresh</button>
+      <button class="btn btn-ghost btn-sm" onclick="doLogout()">Sign out</button>
+    </div>
+  </div>
+
+  <div class="admin-content">
+
+    <!-- OVERVIEW -->
+    <div class="admin-section on" id="section-overview">
+      <div class="kpi-strip" id="kpi-strip">
+        <div class="loader" style="grid-column:span 6"><div class="spin"></div>Loading...</div>
+      </div>
+
+      <!-- Signups chart -->
+      <div class="chart-wrap">
+        <div class="chart-title">New signups — last 14 days</div>
+        <div class="bar-chart" id="signup-chart"><div class="loader"><div class="spin"></div></div></div>
+      </div>
+
+      <!-- Recent users -->
+      <div class="table-card">
+        <div class="tc-head">
+          <div class="tc-title">Recent signups</div>
+          <div class="tc-count" id="recent-count">—</div>
+        </div>
+        <div id="recent-users-wrap"><div class="loader"><div class="spin"></div>Loading...</div></div>
+      </div>
+
+      <!-- Pending payouts alert -->
+      <div class="table-card" id="payout-alert" style="display:none;border-color:rgba(184,144,64,.3)">
+        <div class="tc-head">
+          <div class="tc-title" style="color:var(--amber)">⚠ Pending payout requests</div>
+        </div>
+        <div id="payout-alert-body"></div>
+      </div>
+    </div>
+
+    <!-- USERS -->
+    <div class="admin-section" id="section-users">
+      <div class="search-bar">
+        <input type="text" id="user-search" placeholder="Search by name or email..." oninput="filterUsers()">
+        <select id="user-filter" onchange="filterUsers()" style="background:var(--surface3);border:1px solid var(--line2);border-radius:var(--r);color:var(--t1);font-family:var(--mono);font-size:11px;padding:8px 12px;outline:none">
+          <option value="all">All users</option>
+          <option value="pro">Pro only</option>
+          <option value="free">Free only</option>
+        </select>
+      </div>
+      <div class="table-card">
+        <div class="tc-head">
+          <div class="tc-title">All users</div>
+          <div class="tc-count" id="users-count">—</div>
+        </div>
+        <div id="users-table-wrap"><div class="loader"><div class="spin"></div>Loading...</div></div>
+      </div>
+    </div>
+
+    <!-- REVENUE -->
+    <div class="admin-section" id="section-revenue">
+      <div class="kpi-strip" style="grid-template-columns:repeat(3,1fr)" id="revenue-kpis"></div>
+      <div class="table-card">
+        <div class="tc-head"><div class="tc-title">Pro subscribers</div><div class="tc-count" id="pro-count">—</div></div>
+        <div id="pro-table-wrap"><div class="loader"><div class="spin"></div>Loading...</div></div>
+      </div>
+    </div>
+
+    <!-- REFERRALS -->
+    <div class="admin-section" id="section-referrals">
+      <div class="table-card">
+        <div class="tc-head"><div class="tc-title">All referrals</div><div class="tc-count" id="ref-count">—</div></div>
+        <div id="referrals-table-wrap"><div class="loader"><div class="spin"></div>Loading...</div></div>
+      </div>
+    </div>
+
+    <!-- PAYOUTS -->
+    <div class="admin-section" id="section-payouts">
+      <div class="table-card">
+        <div class="tc-head"><div class="tc-title">Payout requests</div></div>
+        <div id="payouts-table-wrap"><div class="loader"><div class="spin"></div>Loading...</div></div>
+      </div>
+    </div>
+
+    <!-- CREATE USER -->
+    <div class="admin-section" id="section-create">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:900px">
+
+        <!-- Create form -->
+        <div class="table-card" style="padding:28px">
+          <div class="tc-title" style="margin-bottom:20px">Create a new user account</div>
+          <div class="field"><label>Full name</label><input type="text" id="cu-name" placeholder="Jane Smith"></div>
+          <div class="field"><label>Email address</label><input type="email" id="cu-email" placeholder="jane@email.com"></div>
+          <div class="field"><label>Temporary password</label>
+            <div style="display:flex;gap:8px">
+              <input type="text" id="cu-pw" placeholder="Min 6 characters" style="flex:1">
+              <button class="btn btn-ghost btn-sm" onclick="genPW()" style="flex-shrink:0">Generate</button>
+            </div>
+          </div>
+          <div class="field">
+            <label>Plan</label>
+            <select id="cu-plan" style="width:100%;background:var(--surface3);border:1px solid var(--line2);border-radius:var(--r);color:var(--t1);font-family:var(--mono);font-size:12px;padding:9px 12px;outline:none">
+              <option value="pro">Pro (recommended for friends)</option>
+              <option value="free">Free</option>
+            </select>
+          </div>
+          <div class="err" id="cu-err">Please fill all fields.</div>
+          <div id="cu-success" style="display:none;background:rgba(74,158,114,.1);border:1px solid rgba(74,158,114,.2);border-radius:var(--r);padding:12px;margin-bottom:12px;font-family:var(--mono);font-size:10px;color:var(--green2)"></div>
+          <button class="btn btn-gold btn-full" id="cu-btn" onclick="createUser()">Create account →</button>
+        </div>
+
+        <!-- Message template -->
+        <div class="table-card" style="padding:28px">
+          <div class="tc-title" style="margin-bottom:16px">Message to send them</div>
+          <div id="invite-msg" style="background:var(--surface3);border:1px solid var(--line2);border-radius:var(--r2);padding:16px;font-family:var(--mono);font-size:10px;color:var(--t2);line-height:1.9;white-space:pre-wrap;min-height:180px">Fill in the form and create the account — your message will appear here.</div>
+          <button class="btn btn-ghost btn-full" style="margin-top:12px" onclick="copyMsg()">Copy message</button>
+          <div style="font-family:var(--mono);font-size:9px;color:var(--t3);margin-top:12px;line-height:1.7">Send this via text, email, or DM. They log in at plutur.com and can change their password in settings.</div>
+        </div>
+
+      </div>
+
+      <!-- Recently created -->
+      <div class="table-card" style="margin-top:20px;max-width:900px">
+        <div class="tc-head"><div class="tc-title">Recently created accounts</div></div>
+        <div id="created-list"><div class="loader">No accounts created yet this session.</div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const API = 'https://web-production-5b588.up.railway.app';
+let ADMIN_KEY = '';
+let DATA = null;
+let ALL_USERS = [];
+
+function toast(msg, color = 'var(--gold)') {
+  const t = document.getElementById('toast');
+  const dot = t.querySelector('.toast-dot');
+  document.getElementById('toast-msg').textContent = msg;
+  dot.style.background = color;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function doAdminLogin() {
+  const pw = document.getElementById('admin-pw').value;
+  const err = document.getElementById('login-err');
+  err.style.display = 'none';
+  if (!pw) { err.style.display = 'block'; return; }
+  ADMIN_KEY = pw;
+  // Test the key
+  loadData().then(ok => {
+    if (ok) {
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('admin-shell').classList.add('on');
+      localStorage.setItem('plutur_admin_key', pw);
+    } else {
+      err.style.display = 'block';
+      ADMIN_KEY = '';
+    }
+  });
+}
+
+function doLogout() {
+  ADMIN_KEY = '';
+  localStorage.removeItem('plutur_admin_key');
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('admin-shell').classList.remove('on');
+  document.getElementById('admin-pw').value = '';
+}
+
+async function loadData() {
+  try {
+    const res = await fetch(API + '/api/admin/stats', {
+      headers: { 'x-admin-key': ADMIN_KEY }
+    });
+    if (res.status === 401) return false;
+    DATA = await res.json();
+    ALL_USERS = DATA.users || [];
+    document.getElementById('last-updated').textContent = 'Updated ' + new Date().toLocaleTimeString();
+    renderAll();
+    return true;
+  } catch(e) {
+    toast('Connection error', 'var(--red2)');
+    return false;
+  }
+}
+
+function renderAll() {
+  renderKPIs();
+  renderChart();
+  renderRecentUsers();
+  renderUsersTable(ALL_USERS);
+  renderRevenue();
+  renderReferrals();
+  renderPayouts();
+}
+
+function renderKPIs() {
+  const s = DATA.stats;
+  document.getElementById('kpi-strip').innerHTML = [
+    { label: 'MRR', value: '$' + s.mrr.toLocaleString(), sub: '$' + (s.mrr * 12).toLocaleString() + ' ARR', cls: 'gold' },
+    { label: 'Pro users', value: s.proUsers, sub: '$29/mo each', cls: 'green' },
+    { label: 'Total users', value: s.totalUsers, sub: s.freeUsers + ' free', cls: 'blue' },
+    { label: 'New (30d)', value: s.newLast30, sub: 'Signups', cls: 'amber' },
+    { label: 'Active referrals', value: s.activeReferrals, sub: '$' + (s.activeReferrals * 5.80).toFixed(0) + '/mo commission', cls: 'muted' },
+    { label: 'Total analyses', value: s.totalAnalyses?.toLocaleString() || '0', sub: 'All time', cls: 'muted' },
+  ].map(k => `<div class="kpi ${k.cls}"><div class="kpi-label">${k.label}</div><div class="kpi-value">${k.value}</div><div class="kpi-sub">${k.sub}</div></div>`).join('');
+}
+
+function renderChart() {
+  const users = DATA.users || [];
+  // Build last 14 days
+  const days = [];
+  for (let i = 13; i >= 0; i--) {
+    const d = new Date(Date.now() - i * 86400000);
+    const label = d.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
+    const dateStr = d.toISOString().split('T')[0];
+    const count = users.filter(u => u.created_at?.startsWith(dateStr)).length;
+    days.push({ label, count });
+  }
+  const max = Math.max(...days.map(d => d.count), 1);
+  document.getElementById('signup-chart').innerHTML = days.map(d => `
+    <div class="bar-col">
+      <div class="bar-val">${d.count || ''}</div>
+      <div class="bar" style="height:${Math.max((d.count / max) * 70, d.count > 0 ? 6 : 2)}px;${d.count > 0 ? 'background:rgba(201,168,76,.25);border-color:rgba(201,168,76,.4)' : ''}"></div>
+      <div class="bar-lbl">${d.label}</div>
+    </div>`).join('');
+}
+
+function renderRecentUsers() {
+  const recent = [...(DATA.users || [])].slice(0, 10);
+  document.getElementById('recent-count').textContent = recent.length + ' most recent';
+  document.getElementById('recent-users-wrap').innerHTML = `
+    <table class="tbl">
+      <thead><tr><th>Name</th><th>Email</th><th>Plan</th><th>Joined</th><th>Actions</th></tr></thead>
+      <tbody>${recent.map(u => userRow(u)).join('')}</tbody>
+    </table>`;
+}
+
+function userRow(u) {
+  const joined = new Date(u.created_at).toLocaleDateString();
+  const planBadge = u.plan === 'pro'
+    ? '<span class="badge pro">Pro</span>'
+    : '<span class="badge free">Free</span>';
+  const action = u.plan === 'pro'
+    ? `<button class="btn btn-danger btn-sm" onclick="changeplan('${u.id}','free')">→ Free</button>`
+    : `<button class="btn btn-success btn-sm" onclick="changeplan('${u.id}','pro')">→ Pro</button>`;
+  return `<tr>
+    <td>${u.name || '—'}</td>
+    <td style="color:var(--t2)">${u.email}</td>
+    <td>${planBadge}</td>
+    <td style="color:var(--t3)">${joined}</td>
+    <td>${action}</td>
+  </tr>`;
+}
+
+function renderUsersTable(users) {
+  document.getElementById('users-count').textContent = users.length + ' users';
+  document.getElementById('users-table-wrap').innerHTML = `
+    <table class="tbl">
+      <thead><tr><th>Name</th><th>Email</th><th>Plan</th><th>Ref code</th><th>Joined</th><th>Actions</th></tr></thead>
+      <tbody>${users.map(u => {
+        const joined = new Date(u.created_at).toLocaleDateString();
+        const planBadge = u.plan === 'pro' ? '<span class="badge pro">Pro</span>' : '<span class="badge free">Free</span>';
+        const action = u.plan === 'pro'
+          ? `<button class="btn btn-danger btn-sm" onclick="changeplan('${u.id}','free')">→ Free</button>`
+          : `<button class="btn btn-success btn-sm" onclick="changeplan('${u.id}','pro')">→ Pro</button>`;
+        return `<tr>
+          <td>${u.name || '—'}</td>
+          <td style="color:var(--t2)">${u.email}</td>
+          <td>${planBadge}</td>
+          <td style="color:var(--t3);font-size:9px">${u.referral_code || '—'}</td>
+          <td style="color:var(--t3)">${joined}</td>
+          <td>${action}</td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table>`;
+}
+
+function filterUsers() {
+  const q = document.getElementById('user-search').value.toLowerCase();
+  const f = document.getElementById('user-filter').value;
+  let users = ALL_USERS;
+  if (f === 'pro') users = users.filter(u => u.plan === 'pro');
+  if (f === 'free') users = users.filter(u => u.plan === 'free');
+  if (q) users = users.filter(u => (u.name||'').toLowerCase().includes(q) || (u.email||'').toLowerCase().includes(q));
+  renderUsersTable(users);
+}
+
+function renderRevenue() {
+  const pro = (DATA.users || []).filter(u => u.plan === 'pro');
+  const mrr = pro.length * 29;
+  document.getElementById('revenue-kpis').innerHTML = [
+    { label: 'MRR', value: '$' + mrr.toLocaleString(), sub: 'Monthly recurring', cls: 'gold' },
+    { label: 'ARR', value: '$' + (mrr * 12).toLocaleString(), sub: 'Annual run rate', cls: 'green' },
+    { label: 'To $5k MRR', value: Math.max(0, 172 - pro.length) + ' users', sub: 'Needed at $29/mo', cls: 'amber' },
+  ].map(k => `<div class="kpi ${k.cls}"><div class="kpi-label">${k.label}</div><div class="kpi-value">${k.value}</div><div class="kpi-sub">${k.sub}</div></div>`).join('');
+
+  document.getElementById('pro-count').textContent = pro.length + ' subscribers';
+  document.getElementById('pro-table-wrap').innerHTML = pro.length === 0
+    ? '<div class="loader">No Pro subscribers yet.</div>'
+    : `<table class="tbl">
+        <thead><tr><th>Name</th><th>Email</th><th>Joined</th><th>MRR</th><th>Actions</th></tr></thead>
+        <tbody>${pro.map(u => `<tr>
+          <td>${u.name || '—'}</td>
+          <td style="color:var(--t2)">${u.email}</td>
+          <td style="color:var(--t3)">${new Date(u.created_at).toLocaleDateString()}</td>
+          <td style="color:var(--green2)">$29</td>
+          <td><button class="btn btn-danger btn-sm" onclick="changeplan('${u.id}','free')">Cancel Pro</button></td>
+        </tr>`).join('')}</tbody>
+      </table>`;
+}
+
+function renderReferrals() {
+  const refs = DATA.referrals || [];
+  document.getElementById('ref-count').textContent = refs.length + ' referrals';
+  document.getElementById('referrals-table-wrap').innerHTML = refs.length === 0
+    ? '<div class="loader">No referrals yet.</div>'
+    : `<table class="tbl">
+        <thead><tr><th>Code</th><th>Status</th><th>Commission/mo</th><th>Total earned</th><th>Activated</th></tr></thead>
+        <tbody>${refs.map(r => `<tr>
+          <td style="color:var(--gold)">${r.referral_code}</td>
+          <td><span class="badge ${r.status === 'active' ? 'active' : 'pending'}">${r.status}</span></td>
+          <td style="color:var(--green2)">$${(r.monthly_commission||0).toFixed(2)}</td>
+          <td>$${(r.total_earned||0).toFixed(2)}</td>
+          <td style="color:var(--t3)">${r.activated_at ? new Date(r.activated_at).toLocaleDateString() : '—'}</td>
+        </tr>`).join('')}</tbody>
+      </table>`;
+}
+
+function renderPayouts() {
+  const payouts = DATA.pendingPayouts || [];
+  // Show alert on overview
+  if (payouts.length > 0) {
+    document.getElementById('payout-alert').style.display = 'block';
+    document.getElementById('payout-alert-body').innerHTML = `
+      <table class="tbl">
+        <thead><tr><th>User</th><th>Amount</th><th>Method</th><th>Details</th><th>Actions</th></tr></thead>
+        <tbody>${payouts.map(p => `<tr>
+          <td>${p.user?.name || '—'} <span style="color:var(--t3);font-size:9px">${p.user?.email || ''}</span></td>
+          <td style="color:var(--green2)">$${p.amount}</td>
+          <td>${p.method}</td>
+          <td style="color:var(--t2)">${p.details}</td>
+          <td><button class="btn btn-success btn-sm" onclick="approvePayout('${p.id}')">✓ Mark paid</button></td>
+        </tr>`).join('')}</tbody>
+      </table>`;
+  }
+
+  document.getElementById('payouts-table-wrap').innerHTML = payouts.length === 0
+    ? '<div class="loader">No pending payouts.</div>'
+    : `<table class="tbl">
+        <thead><tr><th>User</th><th>Amount</th><th>Method</th><th>Details</th><th>Requested</th><th>Actions</th></tr></thead>
+        <tbody>${payouts.map(p => `<tr>
+          <td>${p.user?.name || '—'}</td>
+          <td style="color:var(--green2)">$${p.amount}</td>
+          <td>${p.method}</td>
+          <td style="color:var(--t2)">${p.details}</td>
+          <td style="color:var(--t3)">${new Date(p.created_at).toLocaleDateString()}</td>
+          <td><button class="btn btn-success btn-sm" onclick="approvePayout('${p.id}')">✓ Mark paid</button></td>
+        </tr>`).join('')}</tbody>
+      </table>`;
+}
+
+async function changeplan(userId, plan) {
+  const endpoint = plan === 'pro' ? '/api/admin/upgrade' : '/api/admin/downgrade';
+  try {
+    const res = await fetch(API + endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-key': ADMIN_KEY },
+      body: JSON.stringify({ userId })
+    });
+    const data = await res.json();
+    toast(data.message || 'Done', plan === 'pro' ? 'var(--green2)' : 'var(--amber)');
+    await loadData();
+  } catch(e) {
+    toast('Error: ' + e.message, 'var(--red2)');
+  }
+}
+
+async function approvePayout(payoutId) {
+  try {
+    const res = await fetch(API + '/api/admin/payout/approve', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-key': ADMIN_KEY },
+      body: JSON.stringify({ payoutId })
+    });
+    const data = await res.json();
+    toast('Payout marked as paid ✓', 'var(--green2)');
+    await loadData();
+  } catch(e) {
+    toast('Error', 'var(--red2)');
+  }
+}
+
+function showSection(id) {
+  document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('on'));
+  document.querySelectorAll('.an-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('section-' + id).classList.add('on');
+  document.getElementById('nav-' + id).classList.add('active');
+}
+
+// Auto-login if key saved
+window.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem('plutur_admin_key');
+  if (saved) {
+    ADMIN_KEY = saved;
+    loadData().then(ok => {
+      if (ok) {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('admin-shell').classList.add('on');
+      } else {
+        ADMIN_KEY = '';
+        localStorage.removeItem('plutur_admin_key');
+      }
+    });
+  }
+});
+
+// Auto refresh every 2 minutes
+setInterval(() => { if (ADMIN_KEY) loadData(); }, 120000);
+
+// ── CREATE USER ──────────────────────────────────────
+const createdAccounts = [];
+
+function genPW() {
+  const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#';
+  let pw = '';
+  for (let i = 0; i < 10; i++) pw += chars[Math.floor(Math.random() * chars.length)];
+  document.getElementById('cu-pw').value = pw;
+  updateInviteMsg();
+}
+
+function updateInviteMsg() {
+  const name = document.getElementById('cu-name').value.trim();
+  const email = document.getElementById('cu-email').value.trim();
+  const pw = document.getElementById('cu-pw').value.trim();
+  const plan = document.getElementById('cu-plan').value;
+  if (!name && !email) return;
+  document.getElementById('invite-msg').textContent =
+`Hey ${name.split(' ')[0] || 'there'},
+
+I set you up with a Plutur${plan === 'pro' ? ' Pro' : ''} account — it's the real estate deal analyzer I've been using.
+
+Login: plutur.com
+Email: ${email || 'your email'}
+Password: ${pw || '(set below)'}
+
+${plan === 'pro' ? 'You\'re set up with Pro access — unlimited analyses, all 5 property types, live market data, ML deal scoring, AI advisor, and PDF reports.' : 'Start with 3 free analyses per day. Upgrade to Pro for $29/mo to unlock everything.'}
+
+Let me know what you think!`;
+}
+
+['cu-name','cu-email','cu-pw'].forEach(id => {
+  document.getElementById(id)?.addEventListener('input', updateInviteMsg);
+});
+document.getElementById('cu-plan')?.addEventListener('change', updateInviteMsg);
+
+function copyMsg() {
+  const msg = document.getElementById('invite-msg').textContent;
+  navigator.clipboard.writeText(msg).then(() => toast('Message copied!'));
+}
+
+async function createUser() {
+  const name = document.getElementById('cu-name').value.trim();
+  const email = document.getElementById('cu-email').value.trim();
+  const pw = document.getElementById('cu-pw').value.trim();
+  const plan = document.getElementById('cu-plan').value;
+  const err = document.getElementById('cu-err');
+  const succ = document.getElementById('cu-success');
+  err.style.display = 'none'; succ.style.display = 'none';
+
+  if (!name || !email || pw.length < 6) {
+    err.textContent = !name || !email ? 'Please fill all fields.' : 'Password must be at least 6 characters.';
+    err.style.display = 'block'; return;
+  }
+
+  const btn = document.getElementById('cu-btn');
+  btn.textContent = 'Creating...'; btn.disabled = true;
+
+  try {
+    const res = await fetch(API + '/api/admin/create-user', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-key': ADMIN_KEY },
+      body: JSON.stringify({ name, email, password: pw, plan })
+    });
+    const data = await res.json();
+    if (data.error) {
+      err.textContent = data.error; err.style.display = 'block';
+    } else {
+      succ.textContent = `✓ Account created for ${name} (${email}) — ${plan.toUpperCase()}`;
+      succ.style.display = 'block';
+      createdAccounts.unshift({ name, email, plan, created: new Date().toLocaleTimeString() });
+      renderCreatedList();
+      toast(`Account created for ${name.split(' ')[0]} ✓`, 'var(--green2)');
+      // Clear form
+      document.getElementById('cu-name').value = '';
+      document.getElementById('cu-email').value = '';
+      document.getElementById('cu-pw').value = '';
+      await loadData();
+    }
+  } catch(e) {
+    err.textContent = 'Connection error. Try again.'; err.style.display = 'block';
+  }
+  btn.textContent = 'Create account →'; btn.disabled = false;
+}
+
+function renderCreatedList() {
+  if (!createdAccounts.length) return;
+  document.getElementById('created-list').innerHTML = `
+    <table class="tbl">
+      <thead><tr><th>Name</th><th>Email</th><th>Plan</th><th>Created</th></tr></thead>
+      <tbody>${createdAccounts.map(a => `<tr>
+        <td>${a.name}</td>
+        <td style="color:var(--t2)">${a.email}</td>
+        <td><span class="badge ${a.plan === 'pro' ? 'pro' : 'free'}">${a.plan}</span></td>
+        <td style="color:var(--t3)">${a.created}</td>
+      </tr>`).join('')}</tbody>
+    </table>`;
+}
+</script>
+</body>
+</html>
