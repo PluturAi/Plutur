@@ -561,6 +561,22 @@ function generateCode(name) {
   return base + suffix;
 }
 
+// Update referral code
+app.post('/api/referral/update-code', requireAuth, async (req, res) => {
+  const code = (req.body.code || '').toUpperCase().replace(/[^A-Z0-9]/g, '').trim();
+  if (!code || code.length < 3) return res.status(400).json({ error: 'Code must be at least 3 characters' });
+  if (code.length > 12) return res.status(400).json({ error: 'Code must be 12 characters or less' });
+
+  // Check if code is taken
+  const { data: existing } = await supabase.from('profiles').select('id').eq('referral_code', code).single();
+  if (existing && existing.id !== req.user.id) {
+    return res.status(400).json({ error: 'That code is already taken. Try another.' });
+  }
+
+  await supabase.from('profiles').update({ referral_code: code }).eq('id', req.user.id);
+  res.json({ code, url: `${process.env.FRONTEND_URL}?ref=${code}` });
+});
+
 // Get or create referral code for user
 app.get('/api/referral/code', requireAuth, async (req, res) => {
   let { data: profile } = await supabase.from('profiles').select('referral_code, name').eq('id', req.user.id).single();
