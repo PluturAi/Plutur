@@ -1940,17 +1940,27 @@ hr.div { border: none; border-top: 1px solid var(--line); margin: 20px 0; }
         <!-- How it works -->
         <div class="card" style="background:var(--gold-dim);border-color:var(--line3)">
           <div class="card-label">How it works</div>
-          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px">
-            ${[
-              ['1','Share your link','Send your unique referral link to real estate investors, colleagues, or your audience.'],
-              ['2','They sign up','When someone creates an account using your link, they\'re tagged as your referral.'],
-              ['3','They go Pro','When they upgrade to $29/mo Pro, you immediately earn $5.80 (20%).'],
-              ['4','Earn every month','As long as they stay Pro, you earn $5.80 every month automatically.'],
-            ].map(([n,t,d])=>`<div>
-              <div style="font-family:var(--serif);font-size:32px;font-style:italic;color:var(--gold);margin-bottom:6px">${n}</div>
-              <div style="font-family:var(--mono);font-size:10px;color:var(--t1);margin-bottom:4px;letter-spacing:.3px">${t}</div>
-              <div style="font-family:var(--mono);font-size:9px;color:var(--t3);line-height:1.7">${d}</div>
-            </div>`).join('')}
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px" class="ref-how-grid">
+            <div>
+              <div style="font-family:var(--serif);font-size:32px;font-style:italic;color:var(--gold);margin-bottom:6px">1</div>
+              <div style="font-family:var(--mono);font-size:10px;color:var(--t1);margin-bottom:4px;letter-spacing:.3px">Share your link</div>
+              <div style="font-family:var(--mono);font-size:9px;color:var(--t3);line-height:1.7">Send your unique referral link to real estate investors, colleagues, or your audience.</div>
+            </div>
+            <div>
+              <div style="font-family:var(--serif);font-size:32px;font-style:italic;color:var(--gold);margin-bottom:6px">2</div>
+              <div style="font-family:var(--mono);font-size:10px;color:var(--t1);margin-bottom:4px;letter-spacing:.3px">They sign up</div>
+              <div style="font-family:var(--mono);font-size:9px;color:var(--t3);line-height:1.7">When someone creates an account using your link, they're tagged as your referral.</div>
+            </div>
+            <div>
+              <div style="font-family:var(--serif);font-size:32px;font-style:italic;color:var(--gold);margin-bottom:6px">3</div>
+              <div style="font-family:var(--mono);font-size:10px;color:var(--t1);margin-bottom:4px;letter-spacing:.3px">They go Pro</div>
+              <div style="font-family:var(--mono);font-size:9px;color:var(--t3);line-height:1.7">When they upgrade to $29/mo Pro, you immediately earn $5.80 (20% commission).</div>
+            </div>
+            <div>
+              <div style="font-family:var(--serif);font-size:32px;font-style:italic;color:var(--gold);margin-bottom:6px">4</div>
+              <div style="font-family:var(--mono);font-size:10px;color:var(--t1);margin-bottom:4px;letter-spacing:.3px">Earn every month</div>
+              <div style="font-family:var(--mono);font-size:9px;color:var(--t3);line-height:1.7">As long as they stay Pro, you earn $5.80 every month automatically.</div>
+            </div>
           </div>
         </div>
       </div>
